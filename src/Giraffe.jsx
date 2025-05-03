@@ -5,11 +5,11 @@ const Giraffe = () => {
   const [backgroundOffset, setBackgroundOffset] = useState(2500);
   const [isKeyPressed, setIsKeyPressed] = useState(false);
   const [pressCount, setPressCount] = useState(0);
-  const [isGameOver, setIsGameOver] = useState(false); // 게임 종료 상태
+  const [isGameOver, setIsGameOver] = useState(false);
 
   const MAX_OFFSET = 2500;
   const MIN_OFFSET = 0;
-  const SPACEBAR_GOAL_COUNT = 70;
+  const SPACEBAR_GOAL_COUNT = 5;
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -28,7 +28,7 @@ const Giraffe = () => {
       if (isGameOver && (e.key === "r" || e.key === "R")) {
         setIsGameOver(false);
         setPressCount(0);
-        setBackgroundOffset(MAX_OFFSET); // 자연스럽게 내려가도록 transition 유지
+        setBackgroundOffset(MAX_OFFSET);
       }
     };
 
@@ -57,7 +57,7 @@ const Giraffe = () => {
           height: "3000px",
           background:
             "linear-gradient(to bottom, #000000, #1a1a80, #3399ff, #66ccff, #99cc66)",
-          transition: "top 0.3s ease-out", // 자연스러운 복귀
+          transition: "top 0.3s ease-out",
         }}
       />
 
