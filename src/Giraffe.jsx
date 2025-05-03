@@ -82,7 +82,6 @@ const Giraffe = () => {
     return () => cancelAnimationFrame(animationFrame);
   }, []);
 
-  // 타이머 종료 시 종료
   useEffect(() => {
     if (remainingTime === 0 && !isGameOver) {
       setIsTimeOver(true);
@@ -91,7 +90,6 @@ const Giraffe = () => {
     }
   }, [remainingTime, isGameOver]);
 
-  // ✅ 승리 시 화면 흔들기
   useEffect(() => {
     if (isGameOver && !isTimeOver) {
       setIsShaking(true);
@@ -294,7 +292,7 @@ const Giraffe = () => {
               <div>⏱ 시간 종료!</div>
             ) : (
               <div>
-                🎉 성공! <br />⏱ {remainingTime.toFixed(2)}초
+                🎉 성공! <br />⏱ {(15 - remainingTime).toFixed(2)}초
               </div>
             )}
           </div>
