@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import giraffeImage from "./giraffe.png";
+import goalBell from "./Goal_Bell.mp3";
 
 const Giraffe = () => {
   const [backgroundOffset, setBackgroundOffset] = useState(2500);
@@ -7,9 +8,11 @@ const Giraffe = () => {
   const [pressCount, setPressCount] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
 
+  const audioRef = useRef(null);
+
   const MAX_OFFSET = 2500;
   const MIN_OFFSET = 0;
-  const SPACEBAR_GOAL_COUNT = 5;
+  const SPACEBAR_GOAL_COUNT = process.env.NODE_ENV === "development" ? 5 : 70;
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -19,13 +22,16 @@ const Giraffe = () => {
           const nextCount = prev + 1;
           if (nextCount >= SPACEBAR_GOAL_COUNT) {
             setIsGameOver(true);
+            if (audioRef.current) {
+              audioRef.current.play();
+            }
           }
           return nextCount;
         });
         setIsKeyPressed(true);
       }
 
-      if (isGameOver && (e.key === "r" || e.key === "R")) {
+      if (e.key === "r" || e.key === "R") {
         setIsGameOver(false);
         setPressCount(0);
         setBackgroundOffset(MAX_OFFSET);
@@ -48,6 +54,9 @@ const Giraffe = () => {
 
   return (
     <div style={{ position: "relative", overflow: "hidden", height: "100vh" }}>
+      {/* 오디오 */}
+      <audio ref={audioRef} src={goalBell} />
+
       {/* 배경 */}
       <div
         style={{
