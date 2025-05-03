@@ -3,21 +3,32 @@ import giraffeImage from "./giraffe.png";
 
 const Giraffe = () => {
   const [backgroundOffset, setBackgroundOffset] = useState(2500);
+  const [isKeyPressed, setIsKeyPressed] = useState(false); // 눌림 추적
 
   const MAX_OFFSET = 2500;
   const MIN_OFFSET = 0;
 
-  // 스페이스바 누르면 배경 올라감
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.code === "Space") {
+      if (e.code === "Space" && !isKeyPressed) {
         setBackgroundOffset((prev) => Math.max(prev - 100, MIN_OFFSET));
+        setIsKeyPressed(true);
+      }
+    };
+
+    const handleKeyUp = (e) => {
+      if (e.code === "Space") {
+        setIsKeyPressed(false);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [isKeyPressed]);
 
   return (
     <div style={{ position: "relative", overflow: "hidden", height: "100vh" }}>
