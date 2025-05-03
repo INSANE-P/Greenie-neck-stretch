@@ -14,7 +14,7 @@ const Giraffe = () => {
 
   const audioRef = useRef(null);
   const startTimeRef = useRef(null);
-  const idCounter = useRef(0); // ✅ 파티클 고유 ID용 카운터
+  const idCounter = useRef(0);
 
   const MAX_OFFSET = 2500;
   const MIN_OFFSET = 0;
@@ -28,6 +28,7 @@ const Giraffe = () => {
     const width = window.innerWidth;
     const forbiddenStart = width * 0.3;
     const forbiddenEnd = width * 0.7;
+    const yMax = count === 1 ? 300 : count === 2 ? 400 : 600;
 
     const newParticles = Array.from({ length: count }).map(() => {
       let x;
@@ -40,9 +41,10 @@ const Giraffe = () => {
       }
 
       return {
-        id: idCounter.current++, // ✅ 고유 ID
+        id: idCounter.current++,
         x,
-        y: 100 + Math.random() * 200,
+        y: 100 + Math.random() * (yMax - 100),
+        angle: Math.random() * 360,
         lifetime: 0,
       };
     });
@@ -52,7 +54,6 @@ const Giraffe = () => {
 
   useEffect(() => {
     let animationFrame;
-
     const updateParticles = () => {
       setParticles((prev) =>
         prev
@@ -61,14 +62,12 @@ const Giraffe = () => {
       );
       animationFrame = requestAnimationFrame(updateParticles);
     };
-
     animationFrame = requestAnimationFrame(updateParticles);
     return () => cancelAnimationFrame(animationFrame);
   }, []);
 
   useEffect(() => {
     let animationFrame;
-
     const updateTime = () => {
       if (startTimeRef.current !== null) {
         const now = performance.now();
@@ -78,7 +77,6 @@ const Giraffe = () => {
       }
       animationFrame = requestAnimationFrame(updateTime);
     };
-
     animationFrame = requestAnimationFrame(updateTime);
     return () => cancelAnimationFrame(animationFrame);
   }, []);
@@ -239,6 +237,7 @@ const Giraffe = () => {
             fontSize: "24px",
             pointerEvents: "none",
             zIndex: 25,
+            transform: `rotate(${p.angle + p.lifetime * 360}deg)`, // ✅ 회전 애니메이션
           }}
         >
           🌟
@@ -286,15 +285,17 @@ const Giraffe = () => {
               transform: "translateX(-50%)",
               textAlign: "center",
               color: "white",
-              fontSize: "100px",
             }}
           >
             {isTimeOver ? (
-              <div>⏱ 시간 종료!</div>
+              <div style={{ fontSize: "100px" }}>⏱ 시간 종료!</div>
             ) : (
-              <div>
-                🎉 성공! <br />⏱ {(15 - remainingTime).toFixed(2)}초
-              </div>
+              <>
+                <div style={{ fontSize: "100px" }}>🎉 성공!</div>
+                <div style={{ fontSize: "70px", marginTop: "20px" }}>
+                  ⏱ {(15 - remainingTime).toFixed(2)}초
+                </div>
+              </>
             )}
           </div>
         </div>
