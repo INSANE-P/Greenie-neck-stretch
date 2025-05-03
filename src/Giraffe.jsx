@@ -7,27 +7,91 @@ const Giraffe = () => {
   const [isKeyPressed, setIsKeyPressed] = useState(false);
   const [pressCount, setPressCount] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
+  const [particles, setParticles] = useState([]);
 
   const audioRef = useRef(null);
 
   const MAX_OFFSET = 2500;
   const MIN_OFFSET = 0;
-  const SPACEBAR_GOAL_COUNT = process.env.NODE_ENV === "development" ? 5 : 70;
+  const SPACEBAR_GOAL_COUNT = 100;
 
+  // 파티클 조건 구간 상수
+  const PARTICLE_STAGE_1_START = 51;
+  const PARTICLE_STAGE_2_START = 61;
+  const PARTICLE_STAGE_3_START = 71;
+
+  // 🌟 파티클 N개 생성 (30~70% 영역 제외)
+  const createParticles = (count) => {
+    const width = window.innerWidth;
+    const forbiddenStart = width * 0.3;
+    const forbiddenEnd = width * 0.7;
+
+    const newParticles = Array.from({ length: count }).map(() => {
+      let x;
+      while (true) {
+        const candidate = Math.random() * width;
+        if (candidate < forbiddenStart || candidate > forbiddenEnd) {
+          x = candidate;
+          break;
+        }
+      }
+
+      return {
+        id: Date.now() + Math.random(),
+        x,
+        y: 100 + Math.random() * 200,
+        lifetime: 0,
+      };
+    });
+
+    setParticles((prev) => [...prev, ...newParticles]);
+  };
+
+  // 파티클 애니메이션
+  useEffect(() => {
+    let animationFrame;
+
+    const updateParticles = () => {
+      setParticles((prev) =>
+        prev
+          .map((p) => ({ ...p, lifetime: p.lifetime + 0.02 }))
+          .filter((p) => p.lifetime < 1)
+      );
+      animationFrame = requestAnimationFrame(updateParticles);
+    };
+
+    animationFrame = requestAnimationFrame(updateParticles);
+    return () => cancelAnimationFrame(animationFrame);
+  }, []);
+
+  // 키 입력 처리
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.code === "Space" && !isKeyPressed && !isGameOver) {
         setBackgroundOffset((prev) => Math.max(prev - 100, MIN_OFFSET));
         setPressCount((prev) => {
           const nextCount = prev + 1;
+
           if (nextCount >= SPACEBAR_GOAL_COUNT) {
             setIsGameOver(true);
             if (audioRef.current) {
               audioRef.current.play();
             }
           }
+
+          if (nextCount >= PARTICLE_STAGE_1_START) {
+            if (nextCount < PARTICLE_STAGE_2_START) {
+              createParticles(1); // 51~60
+            } else if (nextCount < PARTICLE_STAGE_3_START) {
+              createParticles(2); // 61~70
+            } else {
+              createParticles(3); // 71+
+            }
+          }
+
           return nextCount;
         });
+
         setIsKeyPressed(true);
       }
 
@@ -69,6 +133,25 @@ const Giraffe = () => {
           transition: "top 0.3s ease-out",
         }}
       />
+
+      {/* 파티클 */}
+      {particles.map((p) => (
+        <div
+          key={p.id}
+          style={{
+            position: "absolute",
+            left: `${p.x}px`,
+            top: `${p.y + p.lifetime * 100}px`,
+            opacity: 1 - p.lifetime,
+            color: "black",
+            fontSize: "24px",
+            pointerEvents: "none",
+            zIndex: 25,
+          }}
+        >
+          🌟
+        </div>
+      ))}
 
       {/* 스페이스바 카운트 표시 */}
       <div
