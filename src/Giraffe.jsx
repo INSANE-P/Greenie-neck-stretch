@@ -14,6 +14,7 @@ const Giraffe = () => {
 
   const audioRef = useRef(null);
   const startTimeRef = useRef(null);
+  const idCounter = useRef(0); // ✅ 파티클 고유 ID용 카운터
 
   const MAX_OFFSET = 2500;
   const MIN_OFFSET = 0;
@@ -39,7 +40,7 @@ const Giraffe = () => {
       }
 
       return {
-        id: Date.now() + Math.random(),
+        id: idCounter.current++, // ✅ 고유 ID
         x,
         y: 100 + Math.random() * 200,
         lifetime: 0,
