@@ -7,6 +7,7 @@ const Giraffe = () => {
   const [isKeyPressed, setIsKeyPressed] = useState(false);
   const [pressCount, setPressCount] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
+  const [isTimeOver, setIsTimeOver] = useState(false);
   const [particles, setParticles] = useState([]);
   const [remainingTime, setRemainingTime] = useState(15.0);
 
@@ -21,11 +22,10 @@ const Giraffe = () => {
   const PARTICLE_STAGE_2_START = 61;
   const PARTICLE_STAGE_3_START = 71;
 
-  // 🌟 파티클 N개 생성 (40~60% 제외)
   const createParticles = (count) => {
     const width = window.innerWidth;
-    const forbiddenStart = width * 0.4;
-    const forbiddenEnd = width * 0.6;
+    const forbiddenStart = width * 0.3;
+    const forbiddenEnd = width * 0.7;
 
     const newParticles = Array.from({ length: count }).map(() => {
       let x;
@@ -48,7 +48,6 @@ const Giraffe = () => {
     setParticles((prev) => [...prev, ...newParticles]);
   };
 
-  // 파티클 애니메이션
   useEffect(() => {
     let animationFrame;
 
@@ -65,7 +64,6 @@ const Giraffe = () => {
     return () => cancelAnimationFrame(animationFrame);
   }, []);
 
-  // 타이머 애니메이션
   useEffect(() => {
     let animationFrame;
 
@@ -83,12 +81,19 @@ const Giraffe = () => {
     return () => cancelAnimationFrame(animationFrame);
   }, []);
 
-  // 키 입력 처리
+  useEffect(() => {
+    if (remainingTime === 0 && !isGameOver) {
+      setIsTimeOver(true);
+      setIsGameOver(true);
+      startTimeRef.current = null;
+    }
+  }, [remainingTime, isGameOver]);
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.code === "Space" && !isKeyPressed && !isGameOver) {
         if (startTimeRef.current === null) {
-          startTimeRef.current = performance.now(); // 타이머 시작
+          startTimeRef.current = performance.now();
         }
 
         setBackgroundOffset((prev) => Math.max(prev - 100, MIN_OFFSET));
@@ -96,7 +101,9 @@ const Giraffe = () => {
           const nextCount = prev + 1;
 
           if (nextCount >= SPACEBAR_GOAL_COUNT) {
+            setIsTimeOver(false);
             setIsGameOver(true);
+            startTimeRef.current = null;
             if (audioRef.current) {
               audioRef.current.play();
             }
@@ -120,6 +127,7 @@ const Giraffe = () => {
 
       if (e.key === "r" || e.key === "R") {
         setIsGameOver(false);
+        setIsTimeOver(false);
         setPressCount(0);
         setBackgroundOffset(MAX_OFFSET);
         setRemainingTime(15.0);
@@ -143,7 +151,18 @@ const Giraffe = () => {
 
   return (
     <div style={{ position: "relative", overflow: "hidden", height: "100vh" }}>
-      {/* 오디오 */}
+      {/* 애니메이션 정의 */}
+      <style>{`
+        @keyframes growCircle {
+          0% {
+            clip-path: circle(0% at center);
+          }
+          100% {
+            clip-path: circle(150% at center);
+          }
+        }
+      `}</style>
+
       <audio ref={audioRef} src={goalBell} />
 
       {/* 배경 */}
@@ -174,7 +193,7 @@ const Giraffe = () => {
         Timer: {remainingTime.toFixed(2)}s
       </div>
 
-      {/* 스페이스바 카운트 표시 */}
+      {/* 스페이스바 카운트 */}
       <div
         style={{
           position: "absolute",
@@ -226,6 +245,48 @@ const Giraffe = () => {
           }}
         />
       </div>
+
+      {/* 종료 모달 (배경 + 텍스트 분리) */}
+      {isGameOver && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            color: "white",
+            fontSize: "100px",
+            zIndex: 100,
+            flexDirection: "column",
+            textAlign: "center",
+            clipPath: "circle(0% at center)",
+            animation: "growCircle 0.6s ease-out forwards",
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: "5%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              textAlign: "center",
+            }}
+          >
+            {isTimeOver ? (
+              <div>⏱ 시간 종료!</div>
+            ) : (
+              <div>
+                🎉 성공! <br />⏱ 남은 시간: {remainingTime.toFixed(2)}초
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
