@@ -186,6 +186,7 @@ const Giraffe = () => {
 
       <audio ref={audioRef} src={goalBell} />
 
+      {/* 배경 */}
       <div
         style={{
           position: "absolute",
@@ -198,6 +199,7 @@ const Giraffe = () => {
         }}
       />
 
+      {/* 타이머 */}
       <div
         style={{
           position: "absolute",
@@ -212,6 +214,7 @@ const Giraffe = () => {
         Timer: {remainingTime.toFixed(2)}s
       </div>
 
+      {/* 스페이스바 카운트 표시 */}
       <div
         style={{
           position: "absolute",
@@ -225,6 +228,59 @@ const Giraffe = () => {
         Spacebar Count: {pressCount}
       </div>
 
+      {/* 오른쪽 진행 게이지 + 종 아이콘 */}
+      <div
+        style={{
+          position: "fixed",
+          right: "40px",
+          top: "50%",
+          transform: "translateY(-50%)",
+          width: "30px",
+          height: "80%",
+          backgroundColor: "#000",
+          borderRadius: "15px",
+          overflow: "hidden",
+          zIndex: 50,
+          boxShadow: "0 0 10px rgba(0,0,0,0.5)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        {/* 종 아이콘 */}
+        <div
+          style={{
+            fontSize: "20px",
+            color: "white",
+            margin: "8px 0",
+          }}
+        >
+          🔔
+        </div>
+
+        {/* 게이지 바 */}
+        <div
+          style={{
+            flexGrow: 1,
+            position: "relative",
+            width: "100%",
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              height: `${(pressCount / SPACEBAR_GOAL_COUNT) * 100}%`,
+              backgroundColor: "#00ff00",
+              transition: "height 0.2s ease",
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+            }}
+          />
+        </div>
+      </div>
+
+      {/* 파티클 */}
       {particles.map((p) => (
         <div
           key={p.id}
@@ -237,13 +293,14 @@ const Giraffe = () => {
             fontSize: "24px",
             pointerEvents: "none",
             zIndex: 25,
-            transform: `rotate(${p.angle + p.lifetime * 360}deg)`, // ✅ 회전 애니메이션
+            transform: `rotate(${p.angle + p.lifetime * 360}deg)`,
           }}
         >
           🌟
         </div>
       ))}
 
+      {/* 기린 이미지 */}
       <div
         style={{
           position: "fixed",
@@ -263,6 +320,7 @@ const Giraffe = () => {
         />
       </div>
 
+      {/* 모달 */}
       {isGameOver && (
         <div
           style={{
@@ -303,5 +361,4 @@ const Giraffe = () => {
     </div>
   );
 };
-
 export default Giraffe;
