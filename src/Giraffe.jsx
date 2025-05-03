@@ -3,7 +3,8 @@ import giraffeImage from "./giraffe.png";
 import goalBell from "./Goal_Bell.mp3";
 
 const Giraffe = () => {
-  const [backgroundOffset, setBackgroundOffset] = useState(2500);
+  const [backgroundOffset, setBackgroundOffset] = useState(10000);
+  const [backgroundHeight, setBackgroundHeight] = useState(11000);
   const [isKeyPressed, setIsKeyPressed] = useState(false);
   const [pressCount, setPressCount] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -16,13 +17,18 @@ const Giraffe = () => {
   const startTimeRef = useRef(null);
   const idCounter = useRef(0);
 
-  const MAX_OFFSET = 2500;
+  const MAX_OFFSET = 10000;
   const MIN_OFFSET = 0;
   const SPACEBAR_GOAL_COUNT = 100;
 
   const PARTICLE_STAGE_1_START = 51;
   const PARTICLE_STAGE_2_START = 61;
   const PARTICLE_STAGE_3_START = 71;
+
+  // 적용
+  useEffect(() => {
+    setBackgroundHeight(MAX_OFFSET + window.innerHeight);
+  }, []);
 
   const createParticles = (count) => {
     const width = window.innerWidth;
@@ -192,7 +198,7 @@ const Giraffe = () => {
           position: "absolute",
           top: `-${backgroundOffset}px`,
           width: "100%",
-          height: "3000px",
+          height: `${backgroundHeight}px`,
           background:
             "linear-gradient(to bottom, #000000, #1a1a80, #3399ff, #66ccff, #99cc66)",
           transition: "top 0.3s ease-out",
