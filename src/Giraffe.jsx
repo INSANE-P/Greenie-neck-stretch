@@ -8,6 +8,7 @@ const Giraffe = () => {
   const [pressCount, setPressCount] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isTimeOver, setIsTimeOver] = useState(false);
+  const [isShaking, setIsShaking] = useState(false);
   const [particles, setParticles] = useState([]);
   const [remainingTime, setRemainingTime] = useState(15.0);
 
@@ -81,6 +82,7 @@ const Giraffe = () => {
     return () => cancelAnimationFrame(animationFrame);
   }, []);
 
+  // 타이머 종료 시 종료
   useEffect(() => {
     if (remainingTime === 0 && !isGameOver) {
       setIsTimeOver(true);
@@ -88,6 +90,26 @@ const Giraffe = () => {
       startTimeRef.current = null;
     }
   }, [remainingTime, isGameOver]);
+
+  // ✅ 승리 시 화면 흔들기
+  useEffect(() => {
+    if (isGameOver && !isTimeOver) {
+      setIsShaking(true);
+      const target = document.getElementById("game-container");
+      const shakeInterval = setInterval(() => {
+        const x = Math.random() * 30 - 15;
+        const y = Math.random() * 30 - 15;
+        const z = Math.random() * 6 - 3;
+        target.style.transform = `translate(${x}px, ${y}px) rotateZ(${z}deg)`;
+      }, 16);
+
+      setTimeout(() => {
+        clearInterval(shakeInterval);
+        target.style.transform = "none";
+        setIsShaking(false);
+      }, 500);
+    }
+  }, [isGameOver, isTimeOver]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -150,8 +172,10 @@ const Giraffe = () => {
   }, [isKeyPressed, isGameOver]);
 
   return (
-    <div style={{ position: "relative", overflow: "hidden", height: "100vh" }}>
-      {/* 애니메이션 정의 */}
+    <div
+      id="game-container"
+      style={{ position: "relative", overflow: "hidden", height: "100vh" }}
+    >
       <style>{`
         @keyframes growCircle {
           0% {
@@ -165,7 +189,6 @@ const Giraffe = () => {
 
       <audio ref={audioRef} src={goalBell} />
 
-      {/* 배경 */}
       <div
         style={{
           position: "absolute",
@@ -178,7 +201,6 @@ const Giraffe = () => {
         }}
       />
 
-      {/* 타이머 */}
       <div
         style={{
           position: "absolute",
@@ -193,7 +215,6 @@ const Giraffe = () => {
         Timer: {remainingTime.toFixed(2)}s
       </div>
 
-      {/* 스페이스바 카운트 */}
       <div
         style={{
           position: "absolute",
@@ -207,7 +228,6 @@ const Giraffe = () => {
         Spacebar Count: {pressCount}
       </div>
 
-      {/* 파티클 */}
       {particles.map((p) => (
         <div
           key={p.id}
@@ -226,7 +246,6 @@ const Giraffe = () => {
         </div>
       ))}
 
-      {/* 기린 */}
       <div
         style={{
           position: "fixed",
@@ -246,7 +265,6 @@ const Giraffe = () => {
         />
       </div>
 
-      {/* 종료 모달 (배경 + 텍스트 분리) */}
       {isGameOver && (
         <div
           style={{
@@ -256,14 +274,7 @@ const Giraffe = () => {
             width: "100vw",
             height: "100vh",
             backgroundColor: "rgba(0, 0, 0, 0.7)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            color: "white",
-            fontSize: "100px",
             zIndex: 100,
-            flexDirection: "column",
-            textAlign: "center",
             clipPath: "circle(0% at center)",
             animation: "growCircle 0.6s ease-out forwards",
           }}
@@ -275,13 +286,15 @@ const Giraffe = () => {
               left: "50%",
               transform: "translateX(-50%)",
               textAlign: "center",
+              color: "white",
+              fontSize: "100px",
             }}
           >
             {isTimeOver ? (
               <div>⏱ 시간 종료!</div>
             ) : (
               <div>
-                🎉 성공! <br />⏱ 남은 시간: {remainingTime.toFixed(2)}초
+                🎉 성공! <br />⏱ {remainingTime.toFixed(2)}초
               </div>
             )}
           </div>
