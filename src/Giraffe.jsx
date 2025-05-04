@@ -32,7 +32,7 @@ const Giraffe = () => {
     e.preventDefault();
     const clearTime = 15 - remainingTime;
     const newPlayer = { name: e.target.name.value, score: clearTime };
-    setRanking((prevRanking) => [...prevRanking, newPlayer].sort((a, b) => b.score - a.score).slice(0, 5));
+    setRanking((prevRanking) => [...prevRanking, newPlayer].sort((a, b) => a.score - b.score).slice(0, 5));
     setIsLeaderBoardOpen(true);
   };
 
@@ -338,7 +338,7 @@ const Giraffe = () => {
         />
       </div>
 
-      {/* 모달 */}
+      {/* 모달  만약에 리더보드 뒷 배경에 결과창이 안뜨게 할려면 !isLeaderBoardOpen 조건도 추가*/}
       {isGameOver && (
         <div
           style={{
@@ -373,6 +373,7 @@ const Giraffe = () => {
                 </div>
               </>
             )}
+            {/*플레이어 이름 입력*/}
             <form onSubmit={onSubmitButtonClick}>
               <input type="text" name="name" required style={{ width: "300px", height: "50px" }} />
               <button type="submit" style={{ width: "100px", height: "55px" }}>입력</button>
@@ -380,6 +381,7 @@ const Giraffe = () => {
           </div>
         </div>
       )}
+      {/*리더보드 모달 기능*/}
       {isLeaderBoardOpen && (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "rgba(0,0,0,0.7)", zIndex: 200, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
           <h2 style={{ color: "white" }}>🏆 랭킹</h2>
