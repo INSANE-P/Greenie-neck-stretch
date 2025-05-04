@@ -12,6 +12,8 @@ const Giraffe = () => {
   const [isShaking, setIsShaking] = useState(false);
   const [particles, setParticles] = useState([]);
   const [remainingTime, setRemainingTime] = useState(15.0);
+  const [isLeaderBoardOpen, setIsLeaderBoardOpen] = useState(false);
+  const [ranking, setRanking] = useState([]);
 
   const audioRef = useRef(null);
   const startTimeRef = useRef(null);
@@ -24,6 +26,15 @@ const Giraffe = () => {
   const PARTICLE_STAGE_1_START = 51;
   const PARTICLE_STAGE_2_START = 61;
   const PARTICLE_STAGE_3_START = 71;
+
+  //이름 제출버튼 클릭시 점수를 저장하고 리더보드 모달을 띄우는 이벤트 핸들러러 
+  const onSubmitButtonClick = (e) => {
+    e.preventDefault();
+    const clearTime = 15 - remainingTime;
+    const newPlayer = { name: e.target.name.value, score: clearTime };
+    setRanking((prevRanking) => [...prevRanking, newPlayer].sort((a, b) => b.score - a.score).slice(0, 5));
+    setIsLeaderBoardOpen(true);
+  };
 
   // 적용
   useEffect(() => {
@@ -153,6 +164,7 @@ const Giraffe = () => {
       if (e.key === "r" || e.key === "R") {
         setIsGameOver(false);
         setIsTimeOver(false);
+        setIsLeaderBoardOpen(false);
         setPressCount(0);
         setBackgroundOffset(MAX_OFFSET);
         setRemainingTime(15.0);
@@ -361,7 +373,28 @@ const Giraffe = () => {
                 </div>
               </>
             )}
+            <form onSubmit={onSubmitButtonClick}>
+              <input type="text" name="name" required style={{ width: "300px", height: "50px" }} />
+              <button type="submit" style={{ width: "100px", height: "55px" }}>입력</button>
+            </form>
           </div>
+        </div>
+      )}
+      {isLeaderBoardOpen && (
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "rgba(0,0,0,0.7)", zIndex: 200, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+          <h2 style={{ color: "white" }}>🏆 랭킹</h2>
+          <ul style={{ fontSize: "20px" }}>
+            {ranking.map((r, i) => {
+              let color = "white";
+              if (i === 0) color = "Gold";
+              else if (i === 1) color = "Silver";
+              else if (i === 2) color = "#cd7f32"; //동색
+              return (
+                <li key={i} style={{ color }}>{i + 1}위: {r.name} - {r.score.toFixed(2)}초</li>
+              );
+            })}
+          </ul>
+          <div style={{ color:"white",fontSize: "30px" }}>R키를 눌러 재시작</div>
         </div>
       )}
     </div>
