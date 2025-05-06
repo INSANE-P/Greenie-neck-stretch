@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import giraffeImage from "./giraffe.png";
 import goalBell from "./Goal_Bell.mp3";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 const Giraffe = () => {
   const [backgroundOffset, setBackgroundOffset] = useState(10000);
@@ -24,7 +24,7 @@ const Giraffe = () => {
 
   const MAX_OFFSET = 10000;
   const MIN_OFFSET = 0;
-  const SPACEBAR_GOAL_COUNT = 5;
+  const SPACEBAR_GOAL_COUNT = 100;
 
   const PARTICLE_STAGE_1_START = 51;
   const PARTICLE_STAGE_2_START = 61;
@@ -36,7 +36,11 @@ const Giraffe = () => {
     if (isSubmitted) return;
     const clearTime = 15 - remainingTime;
     const playerId = uuidv4();
-    const newPlayer = { name: e.target.name.value, score: clearTime, id: playerId  };
+    const newPlayer = {
+      name: e.target.name.value,
+      score: clearTime,
+      id: playerId,
+    };
     console.log(newPlayer);
     setRanking((prevRanking) =>
       [...prevRanking, newPlayer].sort((a, b) => a.score - b.score).slice(0, 5)
@@ -55,7 +59,7 @@ const Giraffe = () => {
   //이름 규칙 검사 함수
   const validateName = (name) => {
     if (name.length < 1 || name.length > 5) {
-      return "이름은 5자 이하로 입력해주세요.";
+      return "이름은 1자 이상 5자 이하로 입력해주세요.";
     }
     if (/\s/.test(name)) {
       return "공백 없이 입력해주세요.";
@@ -401,40 +405,42 @@ const Giraffe = () => {
               </>
             )}
             {/*플레이어 이름 입력*/}
-            <form onSubmit={onSubmitButtonClick}>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "10px",
-                }}
-              >
-                <input
-                  type="text"
-                  name="name"
-                  value={playerName}
-                  onChange={handleNameChange}
-                  required
-                  style={{ width: "300px", height: "50px" }}
-                />
-                <button
-                  type="submit"
-                  disabled={!!nameError || !playerName}
-                  style={{ width: "100px", height: "55px" }}
+            {!isTimeOver && (
+              <form onSubmit={onSubmitButtonClick}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "10px",
+                  }}
                 >
-                  입력
-                </button>
-              </div>
-              {/* 에러 메시지는 고정 높이로 아래 표시 */}
-              <div style={{ height: "20px", marginTop: "5px" }}>
-                {nameError && (
-                  <div style={{ color: "red", fontSize: "14px" }}>
-                    {nameError}
-                  </div>
-                )}
-              </div>
-            </form>
+                  <input
+                    type="text"
+                    name="name"
+                    value={playerName}
+                    onChange={handleNameChange}
+                    required
+                    style={{ width: "300px", height: "50px" }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!!nameError || !playerName}
+                    style={{ width: "100px", height: "55px" }}
+                  >
+                    입력
+                  </button>
+                </div>
+                {/* 에러 메시지는 고정 높이로 아래 표시 */}
+                <div style={{ height: "20px", marginTop: "5px" }}>
+                  {nameError && (
+                    <div style={{ color: "red", fontSize: "14px" }}>
+                      {nameError}
+                    </div>
+                  )}
+                </div>
+              </form>
+            )}
 
             <h2 style={{ color: "white" }}>🏆 랭킹</h2>
             <table
