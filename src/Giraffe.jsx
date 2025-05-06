@@ -14,6 +14,8 @@ const Giraffe = () => {
   const [remainingTime, setRemainingTime] = useState(15.0);
   const [ranking, setRanking] = useState([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [playerName, setPlayerName] = useState("");
+  const [nameError, setNameError] = useState("");
 
   const audioRef = useRef(null);
   const startTimeRef = useRef(null);
@@ -38,6 +40,24 @@ const Giraffe = () => {
     );
     setIsSubmitted(true);
     e.target.name.blur();
+  };
+
+  //이름 인풋 이벤트 핸들러
+  const handleNameChange = (e) => {
+    const newName = e.target.value;
+    setPlayerName(newName);
+    setNameError(validateName(newName));
+  };
+
+  //이름 규칙 검사 함수
+  const validateName = (name) => {
+    if (name.length < 1 || name.length > 5) {
+      return "이름은 5자 이하로 입력해주세요.";
+    }
+    if (/\s/.test(name)) {
+      return "공백 없이 입력해주세요.";
+    }
+    return "";
   };
 
   // 적용
@@ -342,7 +362,7 @@ const Giraffe = () => {
         />
       </div>
 
-      {/* 모달  만약에 리더보드 뒷 배경에 결과창이 안뜨게 할려면 !isLeaderBoardOpen 조건도 추가*/}
+      {/* 모달 */}
       {isGameOver && (
         <div
           style={{
@@ -379,100 +399,124 @@ const Giraffe = () => {
             )}
             {/*플레이어 이름 입력*/}
             <form onSubmit={onSubmitButtonClick}>
-              <input
-                type="text"
-                name="name"
-                required
-                style={{ width: "300px", height: "50px" }}
-              />
-              <button type="submit" style={{ width: "100px", height: "55px" }}>
-                입력
-              </button>
-              <h2 style={{ color: "white" }}>🏆 랭킹</h2>
-              <table
+              <div
                 style={{
-                  color: "white",
-                  fontSize: "25px",
-                  margin: "0 auto",
-                  borderCollapse: "collapse",
-                  border: "2px solid white",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "10px",
                 }}
               >
-                <thead>
-                  <tr>
-                    <th
-                      style={{
-                        width: "100px",
-                        padding: "8px",
-                        border: "1px solid white",
-                      }}
-                    >
-                      순위
-                    </th>
-                    <th
-                      style={{
-                        width: "100px",
-                        padding: "8px",
-                        border: "1px solid white",
-                      }}
-                    >
-                      이름
-                    </th>
-                    <th
-                      style={{
-                        width: "300px",
-                        padding: "8px",
-                        border: "1px solid white",
-                      }}
-                    >
-                      기록
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {ranking.map((r, i) => {
-                    let color = "white";
-                    if (i === 0) color = "gold";
-                    else if (i === 1) color = "silver";
-                    else if (i === 2) color = "#cd7f32"; // 동색
-                    return (
-                      <tr key={i} style={{ color }}>
-                        <td
-                          style={{
-                            padding: "8px",
-                            textAlign: "center",
-                            border: "1px solid white",
-                          }}
-                        >
-                          {i + 1}
-                        </td>
-                        <td
-                          style={{
-                            padding: "8px",
-                            textAlign: "center",
-                            border: "1px solid white",
-                          }}
-                        >
-                          {r.name}
-                        </td>
-                        <td
-                          style={{
-                            padding: "8px",
-                            textAlign: "center",
-                            border: "1px solid white",
-                          }}
-                        >
-                          {r.score.toFixed(2)}초
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-              <div style={{ color: "white", fontSize: "30px" }}>
-                R키를 눌러 재시작
+                <input
+                  type="text"
+                  name="name"
+                  value={playerName}
+                  onChange={handleNameChange}
+                  required
+                  style={{ width: "300px", height: "50px" }}
+                />
+                <button
+                  type="submit"
+                  disabled={!!nameError || !playerName}
+                  style={{ width: "100px", height: "55px" }}
+                >
+                  입력
+                </button>
+              </div>
+              {/* 에러 메시지는 고정 높이로 아래 표시 */}
+              <div style={{ height: "20px", marginTop: "5px" }}>
+                {nameError && (
+                  <div style={{ color: "red", fontSize: "14px" }}>
+                    {nameError}
+                  </div>
+                )}
               </div>
             </form>
+
+            <h2 style={{ color: "white" }}>🏆 랭킹</h2>
+            <table
+              style={{
+                color: "white",
+                fontSize: "25px",
+                margin: "0 auto",
+                borderCollapse: "collapse",
+                border: "2px solid white",
+              }}
+            >
+              <thead>
+                <tr>
+                  <th
+                    style={{
+                      width: "150px",
+                      padding: "8px",
+                      border: "1px solid white",
+                    }}
+                  >
+                    순위
+                  </th>
+                  <th
+                    style={{
+                      width: "150px",
+                      padding: "8px",
+                      border: "1px solid white",
+                    }}
+                  >
+                    이름
+                  </th>
+                  <th
+                    style={{
+                      width: "400px",
+                      padding: "8px",
+                      border: "1px solid white",
+                    }}
+                  >
+                    기록
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {ranking.map((r, i) => {
+                  let color = "white";
+                  if (i === 0) color = "gold";
+                  else if (i === 1) color = "silver";
+                  else if (i === 2) color = "#cd7f32"; // 동색
+                  return (
+                    <tr key={i} style={{ color }}>
+                      <td
+                        style={{
+                          padding: "8px",
+                          textAlign: "center",
+                          border: "1px solid white",
+                        }}
+                      >
+                        {i + 1}
+                      </td>
+                      <td
+                        style={{
+                          padding: "8px",
+                          textAlign: "center",
+                          border: "1px solid white",
+                        }}
+                      >
+                        {r.name}
+                      </td>
+                      <td
+                        style={{
+                          padding: "8px",
+                          textAlign: "center",
+                          border: "1px solid white",
+                        }}
+                      >
+                        {r.score.toFixed(2)}초
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <div style={{ color: "white", fontSize: "30px" }}>
+              R키를 눌러 재시작
+            </div>
           </div>
         </div>
       )}
