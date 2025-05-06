@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import giraffeImage from "./giraffe.png";
 import goalBell from "./Goal_Bell.mp3";
+import { v4 as uuidv4 } from 'uuid';
 
 const Giraffe = () => {
   const [backgroundOffset, setBackgroundOffset] = useState(10000);
@@ -34,7 +35,9 @@ const Giraffe = () => {
     e.preventDefault();
     if (isSubmitted) return;
     const clearTime = 15 - remainingTime;
-    const newPlayer = { name: e.target.name.value, score: clearTime };
+    const playerId = uuidv4();
+    const newPlayer = { name: e.target.name.value, score: clearTime, id: playerId  };
+    console.log(newPlayer);
     setRanking((prevRanking) =>
       [...prevRanking, newPlayer].sort((a, b) => a.score - b.score).slice(0, 5)
     );
