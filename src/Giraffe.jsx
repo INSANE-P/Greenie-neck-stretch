@@ -37,6 +37,7 @@ const Giraffe = () => {
       [...prevRanking, newPlayer].sort((a, b) => a.score - b.score).slice(0, 5)
     );
     setIsSubmitted(true);
+    e.target.name.blur();
   };
 
   // 적용
