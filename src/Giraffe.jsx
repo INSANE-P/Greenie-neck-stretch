@@ -10,10 +10,10 @@ const Giraffe = () => {
   const [isGameOver, setIsGameOver] = useState(false);
   const [isTimeOver, setIsTimeOver] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
-  const [isUnderRank, setIsUnderRank] = useState(true);
   const [particles, setParticles] = useState([]);
   const [remainingTime, setRemainingTime] = useState(15.0);
   const [ranking, setRanking] = useState([]);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const audioRef = useRef(null);
   const startTimeRef = useRef(null);
@@ -30,11 +30,13 @@ const Giraffe = () => {
   //이름 제출버튼 클릭시 점수를 저장하고 리더보드 모달을 띄우는 이벤트 핸들러러
   const onSubmitButtonClick = (e) => {
     e.preventDefault();
+    if (isSubmitted) return;
     const clearTime = 15 - remainingTime;
     const newPlayer = { name: e.target.name.value, score: clearTime };
     setRanking((prevRanking) =>
       [...prevRanking, newPlayer].sort((a, b) => a.score - b.score).slice(0, 5)
     );
+    setIsSubmitted(true);
   };
 
   // 적용
@@ -166,6 +168,7 @@ const Giraffe = () => {
         setIsGameOver(false);
         setIsTimeOver(false);
         setPressCount(0);
+        setIsSubmitted(false);
         setBackgroundOffset(MAX_OFFSET);
         setRemainingTime(15.0);
         startTimeRef.current = null;
