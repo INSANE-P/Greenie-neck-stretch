@@ -24,7 +24,7 @@ const Giraffe = () => {
 
   const MAX_OFFSET = 10000;
   const MIN_OFFSET = 0;
-  const SPACEBAR_GOAL_COUNT = 100;
+  const SPACEBAR_GOAL_COUNT = 5;
 
   const PARTICLE_STAGE_1_START = 51;
   const PARTICLE_STAGE_2_START = 61;
@@ -51,13 +51,16 @@ const Giraffe = () => {
     const newName = e.target.value;
     if (/\s/.test(newName)) return;
     setPlayerName(newName);
-    setNameError(validateName(newName));
+    setNameError( validateId(newName));
   };
 
-  //이름 규칙 검사 함수
-  const validateName = (name) => {
-    if (name.length < 1 || name.length > 5) {
-      return "이름은 1자 이상 5자 이하로 입력해주세요.";
+  //id 규칙 검사 함수
+  const validateId = (name) => { 
+    if(!/^\d+$/.test(name)){
+      return "숫자만을 입력해주세요."
+    }
+    if (name.length != 4) {
+      return "4자리의 id를 입력해주세요.";
     }
     if (/\s/.test(name)) {
       return "공백 없이 입력해주세요.";
@@ -128,12 +131,20 @@ const Giraffe = () => {
   }, []);
 
   useEffect(() => {
+  if (isGameOver && !isTimeOver) {
+    const input = document.querySelector('input[name="name"]');
+    if (input) input.focus();
+  }
+}, [isGameOver, isTimeOver]);
+
+  useEffect(() => {
     if (remainingTime === 0 && !isGameOver) {
       setIsTimeOver(true);
       setIsGameOver(true);
       startTimeRef.current = null;
     }
   }, [remainingTime, isGameOver]);
+
 
   useEffect(() => {
     if (isGameOver && !isTimeOver) {
@@ -393,11 +404,11 @@ const Giraffe = () => {
             }}
           >
             {isTimeOver ? (
-              <div style={{ fontSize: "100px" }}>⏱ 시간 종료!</div>
+              <div style={{ fontSize: "70px" }}>⏱ 시간 종료!</div>
             ) : (
               <>
-                <div style={{ fontSize: "100px" }}>🎉 성공!</div>
-                <div style={{ fontSize: "70px", marginTop: "20px" }}>
+                <div style={{ fontSize: "70px" }}>🎉 성공!</div>
+                <div style={{ fontSize: "50px", marginTop: "10px" }}>
                   ⏱ {(15 - remainingTime).toFixed(2)}초
                 </div>
               </>
