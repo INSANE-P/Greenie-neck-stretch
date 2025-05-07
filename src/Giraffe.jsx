@@ -36,22 +36,20 @@ const Giraffe = () => {
     if (isSubmitted) return;
     const clearTime = 15 - remainingTime;
     const playerId = uuidv4();
-    const newPlayer = {
-      name: e.target.name.value,
-      score: clearTime,
-      id: playerId,
-    };
+    const newPlayer = { name: playerName, score: clearTime, id: playerId  };
     console.log(newPlayer);
     setRanking((prevRanking) =>
       [...prevRanking, newPlayer].sort((a, b) => a.score - b.score).slice(0, 5)
     );
     setIsSubmitted(true);
+    setPlayerName("");
     e.target.name.blur();
   };
 
   //이름 인풋 이벤트 핸들러
   const handleNameChange = (e) => {
     const newName = e.target.value;
+    if (/\s/.test(newName)) return;
     setPlayerName(newName);
     setNameError(validateName(newName));
   };
