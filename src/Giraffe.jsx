@@ -21,6 +21,7 @@ const Giraffe = () => {
   const [nameError, setNameError] = useState("");
   const [neckOffset, setNeckOffset] = useState(-500);
 
+
   const audioRef = useRef(null);
   const startTimeRef = useRef(null);
   const idCounter = useRef(0);
@@ -29,6 +30,7 @@ const Giraffe = () => {
   const MAX_OFFSET = 5000;
   const MIN_OFFSET = 0;
   const SPACEBAR_GOAL_COUNT = 40;
+
 
   const PARTICLE_STAGE_1_START = 51;
   const PARTICLE_STAGE_2_START = 61;
@@ -63,6 +65,7 @@ const Giraffe = () => {
     if(!/^\d+$/.test(name)){
       return "숫자만을 입력해주세요."
     }
+
     if (name.length !== 4) {
       return "4자리의 id를 입력해주세요.";
     }
