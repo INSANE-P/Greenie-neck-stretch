@@ -19,7 +19,7 @@ const Giraffe = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [playerName, setPlayerName] = useState("");
   const [nameError, setNameError] = useState("");
-  const [neckOffset, setNeckOffset] = useState(-500);
+  const [neckOffset, setNeckOffset] = useState(-400);
 
 
   const audioRef = useRef(null);
@@ -221,6 +221,7 @@ const Giraffe = () => {
         setIsSubmitted(false);
         setBackgroundOffset(MAX_OFFSET);
         setRemainingTime(15.0);
+        setNeckOffset(-400);
         startTimeRef.current = null;
       }
     };
@@ -274,11 +275,11 @@ const Giraffe = () => {
       <div
         style={{
           position: "absolute",
-          bottom: `${neckOffset+620}px`,
-          left: "55%",
+          top: `10px`,
+          left: "50%",
           transform: "translateX(-50%)",
           color: "white",
-          fontSize: "30px",
+          fontSize: "50px",
           zIndex: 30,
           fontFamily: "'Luckiest Guy', cursive",
         }}
@@ -378,8 +379,9 @@ const Giraffe = () => {
         top: `-${backgroundOffset}px`,  
         left: "50%",
         transform: "translateX(-50%)", 
-        width: "45%",
-        height: "7000px",
+        width: "35%",
+        transition: "top 0.3s ease-out",
+        height: "10000px",
         zIndex: 10,  
         }}
         >
@@ -398,6 +400,7 @@ const Giraffe = () => {
         style={{
           position: "fixed",
           bottom: `${neckOffset}px`,
+          transition: "bottom 0.8s cubic-bezier(0.25, 1, 0.5, 1)",
           left: "50%",
           transform: "translateX(-50%)",
           zIndex: 20,
