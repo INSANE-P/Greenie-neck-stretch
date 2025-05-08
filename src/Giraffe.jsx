@@ -1,10 +1,12 @@
+
 import { useEffect, useRef, useState } from "react";
 import giraffeImage from "./giraffe.png";
+import brick from "./brick.png"
 import goalBell from "./Goal_Bell.mp3";
 import { v4 as uuidv4 } from "uuid";
 
 const Giraffe = () => {
-  const [backgroundOffset, setBackgroundOffset] = useState(10000);
+  const [backgroundOffset, setBackgroundOffset] = useState(5000);
   const [backgroundHeight, setBackgroundHeight] = useState(11000);
   const [isKeyPressed, setIsKeyPressed] = useState(false);
   const [pressCount, setPressCount] = useState(0);
@@ -17,14 +19,18 @@ const Giraffe = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [playerName, setPlayerName] = useState("");
   const [nameError, setNameError] = useState("");
+  const [neckOffset, setNeckOffset] = useState(-500);
+
 
   const audioRef = useRef(null);
   const startTimeRef = useRef(null);
   const idCounter = useRef(0);
 
-  const MAX_OFFSET = 10000;
+  const MAX_NECK_OFFSET = 0;
+  const MAX_OFFSET = 5000;
   const MIN_OFFSET = 0;
-  const SPACEBAR_GOAL_COUNT = 5;
+  const SPACEBAR_GOAL_COUNT = 40;
+
 
   const PARTICLE_STAGE_1_START = 51;
   const PARTICLE_STAGE_2_START = 61;
@@ -59,7 +65,8 @@ const Giraffe = () => {
     if(!/^\d+$/.test(name)){
       return "숫자만을 입력해주세요."
     }
-    if (name.length != 4) {
+
+    if (name.length !== 4) {
       return "4자리의 id를 입력해주세요.";
     }
     if (/\s/.test(name)) {
@@ -172,6 +179,12 @@ const Giraffe = () => {
           startTimeRef.current = performance.now();
         }
 
+        setNeckOffset((prev) => {
+          if (prev + 10 >= MAX_NECK_OFFSET) {
+            return MAX_NECK_OFFSET;
+          }
+          return prev + 40;
+        });
         setBackgroundOffset((prev) => Math.max(prev - 100, MIN_OFFSET));
         setPressCount((prev) => {
           const nextCount = prev + 1;
@@ -261,15 +274,16 @@ const Giraffe = () => {
       <div
         style={{
           position: "absolute",
-          top: "20px",
-          left: "50%",
+          bottom: `${neckOffset+620}px`,
+          left: "55%",
           transform: "translateX(-50%)",
           color: "white",
-          fontSize: "18px",
+          fontSize: "30px",
           zIndex: 30,
+          fontFamily: "'Luckiest Guy', cursive",
         }}
       >
-        Timer: {remainingTime.toFixed(2)}s
+        {remainingTime.toFixed(2)}s
       </div>
 
       {/* 스페이스바 카운트 표시 */}
@@ -357,12 +371,33 @@ const Giraffe = () => {
           🌟
         </div>
       ))}
+      {/*벽돌돌*/}
+      <div
+      style={{
+        position: "absolute",
+        top: `-${backgroundOffset}px`,  
+        left: "50%",
+        transform: "translateX(-50%)", 
+        width: "45%",
+        height: "7000px",
+        zIndex: 10,  
+        }}
+        >
+        <img
+        src={brick}
+        alt="Brick Background"
+        style={{
+          width: "100%",
+          height: "100%",
+        }}
+        ></img>
+        </div>
 
       {/* 기린 이미지 */}
       <div
         style={{
           position: "fixed",
-          bottom: "20px",
+          bottom: `${neckOffset}px`,
           left: "50%",
           transform: "translateX(-50%)",
           zIndex: 20,
