@@ -19,11 +19,13 @@ const Giraffe = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [playerName, setPlayerName] = useState("");
   const [nameError, setNameError] = useState("");
+  const [neckOffset, setNeckOffset] = useState(-500);
 
   const audioRef = useRef(null);
   const startTimeRef = useRef(null);
   const idCounter = useRef(0);
 
+  const MAX_NECK_OFFSET = 0;
   const MAX_OFFSET = 5000;
   const MIN_OFFSET = 0;
   const SPACEBAR_GOAL_COUNT = 40;
@@ -174,6 +176,12 @@ const Giraffe = () => {
           startTimeRef.current = performance.now();
         }
 
+        setNeckOffset((prev) => {
+          if (prev + 10 >= MAX_NECK_OFFSET) {
+            return MAX_NECK_OFFSET;
+          }
+          return prev + 40;
+        });
         setBackgroundOffset((prev) => Math.max(prev - 100, MIN_OFFSET));
         setPressCount((prev) => {
           const nextCount = prev + 1;
@@ -263,8 +271,8 @@ const Giraffe = () => {
       <div
         style={{
           position: "absolute",
-          top: "135px",
-          left: "48%",
+          bottom: `${neckOffset+620}px`,
+          left: "55%",
           transform: "translateX(-50%)",
           color: "white",
           fontSize: "30px",
@@ -367,7 +375,7 @@ const Giraffe = () => {
         top: `-${backgroundOffset}px`,  
         left: "50%",
         transform: "translateX(-50%)", 
-        width: "30%",
+        width: "45%",
         height: "7000px",
         zIndex: 10,  
         }}
@@ -386,7 +394,7 @@ const Giraffe = () => {
       <div
         style={{
           position: "fixed",
-          bottom: "-10px",
+          bottom: `${neckOffset}px`,
           left: "50%",
           transform: "translateX(-50%)",
           zIndex: 20,
