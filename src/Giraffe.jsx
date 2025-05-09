@@ -1,6 +1,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import giraffeImage from "./giraffe.png";
+import giraffeImage2 from "./closeEye.png"
+import giraffeImage3 from "./smileGreenie.png"
 import brick from "./brick.png"
 import goalBell from "./Goal_Bell.mp3";
 import { v4 as uuidv4 } from "uuid";
@@ -20,6 +22,7 @@ const Giraffe = () => {
   const [playerName, setPlayerName] = useState("");
   const [nameError, setNameError] = useState("");
   const [neckOffset, setNeckOffset] = useState(-400);
+  const [giraffeFrame, setGiraffeFrame] = useState(0);
 
 
   const audioRef = useRef(null);
@@ -29,7 +32,7 @@ const Giraffe = () => {
   const MAX_NECK_OFFSET = 0;
   const MAX_OFFSET = 5000;
   const MIN_OFFSET = 0;
-  const SPACEBAR_GOAL_COUNT = 40;
+  const SPACEBAR_GOAL_COUNT = 100;
 
 
   const PARTICLE_STAGE_1_START = 51;
@@ -75,7 +78,6 @@ const Giraffe = () => {
     return "";
   };
 
-  // 적용
   useEffect(() => {
     setBackgroundHeight(MAX_OFFSET + window.innerHeight);
   }, []);
@@ -240,6 +242,14 @@ const Giraffe = () => {
     };
   }, [isKeyPressed, isGameOver]);
 
+  useEffect(() => {
+  const interval = setInterval(() => {
+    setGiraffeFrame((prev) => (prev === 0 ? 1 : 0));
+  }, 300);
+
+  return () => clearInterval(interval);
+}, []);
+
   return (
     <div
       id="game-container"
@@ -278,8 +288,8 @@ const Giraffe = () => {
           top: `10px`,
           left: "50%",
           transform: "translateX(-50%)",
-          color: "white",
-          fontSize: "50px",
+          color: remainingTime <= 5 ? "red" : "white",
+        fontSize: remainingTime <= 5 ? "60px" : "45px",
           zIndex: 30,
           fontFamily: "'Luckiest Guy', cursive",
         }}
@@ -407,7 +417,7 @@ const Giraffe = () => {
         }}
       >
         <img
-          src={giraffeImage}
+        src={giraffeFrame === 0 ? giraffeImage : giraffeImage2}
           alt="Giraffe"
           style={{
             width: "300px",
