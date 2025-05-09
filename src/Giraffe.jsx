@@ -391,7 +391,7 @@ const Giraffe = () => {
         transform: "translateX(-50%)", 
         width: "35%",
         transition: "top 0.3s ease-out",
-        height: "10000px",
+        height: "11000px",
         zIndex: 10,  
         }}
         >
