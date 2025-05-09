@@ -1,14 +1,29 @@
+
 import { useEffect, useRef, useState } from "react";
 import giraffeImage from "./giraffe.png";
-import towerImage from "./tower.png"
+import giraffeImage2 from "./closeEye.png"
+import giraffeImage3 from "./smileGreenie.png"
+import brick from "./brick.png"
 import goalBell from "./Goal_Bell.mp3";
 import { v4 as uuidv4 } from "uuid";
 
 const Giraffe = () => {
-  const [backgroundOffset, setBackgroundOffset] = useState(10000);
-  const [backgroundHeight, setBackgroundHeight] = useState(3000);
-  const [backgroundTowerOffset,setBackgroundTowerOffset] = useState(10000);
-  const [backgroundTowerHeight, setBackgroundTowerHeight] = useState(10000);
+  const audioRef = useRef(null);
+  const startTimeRef = useRef(null);
+  const idCounter = useRef(0);
+
+  const MAX_NECK_OFFSET = 0;
+  const MAX_OFFSET = 10000;
+  const MIN_OFFSET = 0;
+  const SPACEBAR_GOAL_COUNT = 100;
+
+
+  const PARTICLE_STAGE_1_START = 51;
+  const PARTICLE_STAGE_2_START = 61;
+  const PARTICLE_STAGE_3_START = 71;
+  
+  const [backgroundOffset, setBackgroundOffset] = useState(MAX_OFFSET);
+  const [backgroundHeight, setBackgroundHeight] = useState(MAX_OFFSET);
   const [isKeyPressed, setIsKeyPressed] = useState(false);
   const [pressCount, setPressCount] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -20,22 +35,9 @@ const Giraffe = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [playerName, setPlayerName] = useState("");
   const [nameError, setNameError] = useState("");
+  const [neckOffset, setNeckOffset] = useState(-400);
+  const [giraffeFrame, setGiraffeFrame] = useState(0);
 
-  const audioRef = useRef(null);
-  const startTimeRef = useRef(null);
-  const idCounter = useRef(0);
-
-  const MAX_TOWER_OFFSET = 7500;
-  const MAX_OFFSET = 3000;
-  const MIN_OFFSET = 0;
-  const SPACEBAR_GOAL_COUNT = 100;
-  const BACKGROUND_SPEED = 30;
-  const TOWER_SPEED = 75;
-  const PARTICLE_LIFETIME = 0.2;
-
-  const PARTICLE_STAGE_1_START = 51;
-  const PARTICLE_STAGE_2_START = 61;
-  const PARTICLE_STAGE_3_START = 71;
 
   //이름 제출버튼 클릭시 점수를 저장하고 리더보드 모달을 띄우는 이벤트 핸들러러
   const onSubmitButtonClick = (e) => {
@@ -66,7 +68,8 @@ const Giraffe = () => {
     if(!/^\d+$/.test(name)){
       return "숫자만을 입력해주세요."
     }
-    if (name.length != 4) {
+
+    if (name.length !== 4) {
       return "4자리의 id를 입력해주세요.";
     }
     if (/\s/.test(name)) {
@@ -75,10 +78,8 @@ const Giraffe = () => {
     return "";
   };
 
-  // 적용
   useEffect(() => {
     setBackgroundHeight(MAX_OFFSET + window.innerHeight);
-    setBackgroundTowerHeight(MAX_TOWER_OFFSET+window.innerHeight);
   }, []);
 
   const createParticles = (count) => {
@@ -100,7 +101,7 @@ const Giraffe = () => {
       return {
         id: idCounter.current++,
         x,
-        y: BACKGROUND_SPEED + Math.random() * (yMax - BACKGROUND_SPEED),
+        y: 100 + Math.random() * (yMax - 100),
         angle: Math.random() * 360,
         lifetime: 0,
       };
@@ -114,7 +115,7 @@ const Giraffe = () => {
     const updateParticles = () => {
       setParticles((prev) =>
         prev
-          .map((p) => ({ ...p, lifetime: p.lifetime + PARTICLE_LIFETIME }))
+          .map((p) => ({ ...p, lifetime: p.lifetime + 0.02 }))
           .filter((p) => p.lifetime < 1)
       );
       animationFrame = requestAnimationFrame(updateParticles);
@@ -180,8 +181,13 @@ const Giraffe = () => {
           startTimeRef.current = performance.now();
         }
 
-        setBackgroundOffset((prev) => Math.max(prev - BACKGROUND_SPEED, MIN_OFFSET));
-        setBackgroundTowerOffset((prev)=> Math.max(prev - TOWER_SPEED, MIN_OFFSET));
+        setNeckOffset((prev) => {
+          if (prev + 10 >= MAX_NECK_OFFSET) {
+            return MAX_NECK_OFFSET;
+          }
+          return prev + 40;
+        });
+        setBackgroundOffset((prev) => Math.max(prev - 100, MIN_OFFSET));
         setPressCount((prev) => {
           const nextCount = prev + 1;
 
@@ -216,8 +222,8 @@ const Giraffe = () => {
         setPressCount(0);
         setIsSubmitted(false);
         setBackgroundOffset(MAX_OFFSET);
-        setBackgroundTowerOffset(MAX_TOWER_OFFSET);
         setRemainingTime(15.0);
+        setNeckOffset(-400);
         startTimeRef.current = null;
       }
     };
@@ -235,6 +241,14 @@ const Giraffe = () => {
       window.removeEventListener("keyup", handleKeyUp);
     };
   }, [isKeyPressed, isGameOver]);
+
+  useEffect(() => {
+  const interval = setInterval(() => {
+    setGiraffeFrame((prev) => (prev === 0 ? 1 : 0));
+  }, 300);
+
+  return () => clearInterval(interval);
+}, []);
 
   return (
     <div
@@ -266,42 +280,21 @@ const Giraffe = () => {
           transition: "top 0.3s ease-out",
         }}
       />
-      {/*종탑*/}
-      <div
-  style={{
-    position: "fixed",
-    top: `-${backgroundTowerOffset}px`,
-    width: "100%",
-    height: `${backgroundTowerHeight}px`,
-    display: "flex",
-    justifyContent: "center", // 수평 정렬
-    alignItems: "center",     // 수직 정렬
-    transition: "top 0.3s ease-out",
-  }}
->
-  <img
-    src={towerImage}
-    alt="Tower"
-    style={{
-      width: "600px",
-      height: "100%"
-    }}
-  />
-</div>
 
       {/* 타이머 */}
       <div
         style={{
           position: "absolute",
-          top: "20px",
+          top: `10px`,
           left: "50%",
           transform: "translateX(-50%)",
-          color: "white",
-          fontSize: "18px",
+          color: remainingTime <= 5 ? "red" : "white",
+        fontSize: remainingTime <= 5 ? "60px" : "45px",
           zIndex: 30,
+          fontFamily: "'Luckiest Guy', cursive",
         }}
       >
-        Timer: {remainingTime.toFixed(2)}s
+        {remainingTime.toFixed(2)}s
       </div>
 
       {/* 스페이스바 카운트 표시 */}
@@ -389,19 +382,42 @@ const Giraffe = () => {
           🌟
         </div>
       ))}
+      {/*벽돌돌*/}
+      <div
+      style={{
+        position: "absolute",
+        top: `-${backgroundOffset}px`,  
+        left: "50%",
+        transform: "translateX(-50%)", 
+        width: "35%",
+        transition: "top 0.3s ease-out",
+        height: "10000px",
+        zIndex: 10,  
+        }}
+        >
+        <img
+        src={brick}
+        alt="Brick Background"
+        style={{
+          width: "100%",
+          height: "100%",
+        }}
+        ></img>
+        </div>
 
       {/* 기린 이미지 */}
       <div
         style={{
           position: "fixed",
-          bottom: "20px",
+          bottom: `${neckOffset}px`,
+          transition: "bottom 0.8s cubic-bezier(0.25, 1, 0.5, 1)",
           left: "50%",
           transform: "translateX(-50%)",
           zIndex: 20,
         }}
       >
         <img
-          src={giraffeImage}
+        src={giraffeFrame === 0 ? giraffeImage : giraffeImage2}
           alt="Giraffe"
           style={{
             width: "300px",
@@ -446,7 +462,7 @@ const Giraffe = () => {
               </>
             )}
             {/*플레이어 이름 입력*/}
-
+            {!isTimeOver && (
               <form onSubmit={onSubmitButtonClick}>
                 <div
                   style={{
@@ -481,6 +497,7 @@ const Giraffe = () => {
                   )}
                 </div>
               </form>
+            )}
 
             <h2 style={{ color: "white" }}>🏆 랭킹</h2>
             <table
@@ -510,7 +527,7 @@ const Giraffe = () => {
                       border: "1px solid white",
                     }}
                   >
-                    id
+                    이름
                   </th>
                   <th
                     style={{
