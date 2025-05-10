@@ -8,8 +8,22 @@ import goalBell from "./Goal_Bell.mp3";
 import { v4 as uuidv4 } from "uuid";
 
 const Giraffe = () => {
-  const [backgroundOffset, setBackgroundOffset] = useState(5000);
-  const [backgroundHeight, setBackgroundHeight] = useState(11000);
+  const audioRef = useRef(null);
+  const startTimeRef = useRef(null);
+  const idCounter = useRef(0);
+
+  const MAX_NECK_OFFSET = 0;
+  const MAX_OFFSET = 10000;
+  const MIN_OFFSET = 0;
+  const SPACEBAR_GOAL_COUNT = 100;
+
+
+  const PARTICLE_STAGE_1_START = 51;
+  const PARTICLE_STAGE_2_START = 61;
+  const PARTICLE_STAGE_3_START = 71;
+  
+  const [backgroundOffset, setBackgroundOffset] = useState(MAX_OFFSET);
+  const [backgroundHeight, setBackgroundHeight] = useState(MAX_OFFSET);
   const [isKeyPressed, setIsKeyPressed] = useState(false);
   const [pressCount, setPressCount] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -24,20 +38,6 @@ const Giraffe = () => {
   const [neckOffset, setNeckOffset] = useState(-400);
   const [giraffeFrame, setGiraffeFrame] = useState(0);
 
-
-  const audioRef = useRef(null);
-  const startTimeRef = useRef(null);
-  const idCounter = useRef(0);
-
-  const MAX_NECK_OFFSET = 0;
-  const MAX_OFFSET = 5000;
-  const MIN_OFFSET = 0;
-  const SPACEBAR_GOAL_COUNT = 100;
-
-
-  const PARTICLE_STAGE_1_START = 51;
-  const PARTICLE_STAGE_2_START = 61;
-  const PARTICLE_STAGE_3_START = 71;
 
   //이름 제출버튼 클릭시 점수를 저장하고 리더보드 모달을 띄우는 이벤트 핸들러러
   const onSubmitButtonClick = (e) => {
@@ -391,7 +391,7 @@ const Giraffe = () => {
         transform: "translateX(-50%)", 
         width: "35%",
         transition: "top 0.3s ease-out",
-        height: "10000px",
+        height: "11000px",
         zIndex: 10,  
         }}
         >
