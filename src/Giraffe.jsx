@@ -52,21 +52,25 @@ const Giraffe = () => {
   const [giraffeFrame, setGiraffeFrame] = useState(0);
   const [isGreenieUp, setIsGreenieUp] = useState(true);
   const [isStartModalOpen, setIsStartModalOpen] = useState(true);
+  const [finalClearTime, setFinalClearTime] = useState(null);
+
+  const submittedRef = useRef(false);
+
+  //이름 제출모달 자동 포커스
+  useEffect(() => {
+    if (isStartModalOpen) {
+      setTimeout(() => {
+        const input = document.querySelector('input[name="name"]');
+        if (input) input.focus();
+      }, 0);
+    }
+  }, [isStartModalOpen]);
 
   //이름 제출버튼 클릭시 점수를 저장하고 리더보드 모달을 띄우는 이벤트 핸들러러
-  const onSubmitButtonClick = (e) => {
+  const handlePlayerSubmit = (e) => {
     e.preventDefault();
-    if (isSubmitted) return;
-    const clearTime = 15 - remainingTime;
-    const playerId = uuidv4();
-    const newPlayer = { name: playerName, score: clearTime, id: playerId };
-    console.log(newPlayer);
-    setRanking((prevRanking) =>
-      [...prevRanking, newPlayer].sort((a, b) => a.score - b.score).slice(0, 5)
-    );
-    setIsSubmitted(true);
-    setPlayerName("");
-    e.target.name.blur();
+    if (!playerName || nameError) return;
+    setIsStartModalOpen(false); // 모달 닫기
   };
 
   //이름 인풋 이벤트 핸들러
@@ -79,10 +83,6 @@ const Giraffe = () => {
 
   //id 규칙 검사 함수
   const validateId = (name) => {
-    if (!/^\d+$/.test(name)) {
-      return "숫자만을 입력해주세요.";
-    }
-
     if (name.length !== 4) {
       return "4자리의 id를 입력해주세요.";
     }
@@ -154,11 +154,11 @@ const Giraffe = () => {
   }, []);
 
   useEffect(() => {
-    if (isGameOver && !isTimeOver) {
+    if (isGameOver && !isTimeOver && isStartModalOpen) {
       const input = document.querySelector('input[name="name"]');
       if (input) input.focus();
     }
-  }, [isGameOver, isTimeOver]);
+  }, [isGameOver, isTimeOver, isStartModalOpen]);
 
   useEffect(() => {
     if (remainingTime === 0 && !isGameOver) {
@@ -169,7 +169,7 @@ const Giraffe = () => {
   }, [remainingTime, isGameOver]);
 
   useEffect(() => {
-    if (isGameOver && !isTimeOver) {
+    if (isGameOver && !isTimeOver && !isStartModalOpen) {
       setIsShaking(true);
       const target = document.getElementById("game-container");
       const shakeInterval = setInterval(() => {
@@ -185,11 +185,16 @@ const Giraffe = () => {
         setIsShaking(false);
       }, 500);
     }
-  }, [isGameOver, isTimeOver]);
+  }, [isGameOver, isTimeOver, isStartModalOpen]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.code === "Space" && !isKeyPressed && !isGameOver) {
+      if (
+        e.code === "Space" &&
+        !isKeyPressed &&
+        !isGameOver &&
+        !isStartModalOpen
+      ) {
         if (startTimeRef.current === null) {
           startTimeRef.current = performance.now();
           setIsStartModalOpen(false);
@@ -216,9 +221,32 @@ const Giraffe = () => {
           const nextCount = prev + 1;
 
           if (nextCount >= SPACEBAR_GOAL_COUNT) {
+            if (submittedRef.current) return;
+            submittedRef.current = true;
+
             setIsTimeOver(false);
             setIsGameOver(true);
             startTimeRef.current = null;
+            setIsSubmitted(true);
+
+            const clearTime = 15 - remainingTime;
+            setFinalClearTime(clearTime);
+            const playerId = uuidv4();
+            const newPlayer = {
+              name: playerName,
+              score: clearTime,
+              id: playerId,
+            };
+
+            setRanking((prevRanking) =>
+              [...prevRanking, newPlayer]
+                .sort((a, b) => a.score - b.score)
+                .slice(0, 5)
+            );
+
+            setIsSubmitted(true);
+            setPlayerName("");
+
             if (audioRef.current) {
               audioRef.current.play();
             }
@@ -250,6 +278,8 @@ const Giraffe = () => {
         setNeckOffset(-400);
         startTimeRef.current = null;
         setIsStartModalOpen(true);
+        submittedRef.current = false;
+        setIsSubmitted(false);
       }
     };
 
@@ -265,7 +295,7 @@ const Giraffe = () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [isKeyPressed, isGameOver]);
+  }, [isKeyPressed, isGameOver, isStartModalOpen]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -493,20 +523,20 @@ const Giraffe = () => {
           left: "90%",
           transform: "translateX(-50%)",
           transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
-          zIndex: 26,
+          zIndex: 25,
         }}
       >
         <img
           src={planet1}
           alt="planet1"
           style={{
-            width: "1000px",
+            width: "500px",
             height: "auto",
           }}
         />
       </div>
 
-      {/*중간의 행성 블록 2 */}
+      {/*중간의 행성 블록 1 */}
       <div
         style={{
           position: "fixed",
@@ -514,14 +544,14 @@ const Giraffe = () => {
           left: "20%",
           transform: "translateX(-50%)",
           transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
-          zIndex: 26,
+          zIndex: 25,
         }}
       >
         <img
           src={planet2}
           alt="planet2"
           style={{
-            width: "700px",
+            width: "1000px",
             height: "auto",
           }}
         />
@@ -634,6 +664,42 @@ const Giraffe = () => {
               <br />
               세종대학교 시계탑 꼭대기의 종을 울려주세요!
               <br />
+              {/*플레이어 이름 입력*/}
+              <form onSubmit={handlePlayerSubmit}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "10px",
+                  }}
+                >
+                  <input
+                    type="text"
+                    name="name"
+                    value={playerName}
+                    onChange={handleNameChange}
+                    autoComplete="off"
+                    required
+                    style={{ width: "300px", height: "50px" }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!!nameError || !playerName}
+                    style={{ width: "100px", height: "55px" }}
+                  >
+                    입력
+                  </button>
+                </div>
+                {/* 에러 메시지는 고정 높이로 아래 표시 */}
+                <div style={{ height: "20px", marginTop: "5px" }}>
+                  {nameError && (
+                    <div style={{ color: "red", fontSize: "14px" }}>
+                      {nameError}
+                    </div>
+                  )}
+                </div>
+              </form>
               <br />
               <span style={{ fontSize: "18px", color: "#ccc" }}>
                 스페이스바를 눌러 게임을 시작하세요.
@@ -674,46 +740,9 @@ const Giraffe = () => {
               <>
                 <div style={{ fontSize: "70px" }}>🎉 성공!</div>
                 <div style={{ fontSize: "50px", marginTop: "10px" }}>
-                  ⏱ {(15 - remainingTime).toFixed(2)}초
+                  ⏱ {finalClearTime?.toFixed(2)}초
                 </div>
               </>
-            )}
-            {/*플레이어 이름 입력*/}
-            {!isTimeOver && (
-              <form onSubmit={onSubmitButtonClick}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "10px",
-                  }}
-                >
-                  <input
-                    type="text"
-                    name="name"
-                    value={playerName}
-                    onChange={handleNameChange}
-                    required
-                    style={{ width: "300px", height: "50px" }}
-                  />
-                  <button
-                    type="submit"
-                    disabled={!!nameError || !playerName}
-                    style={{ width: "100px", height: "55px" }}
-                  >
-                    입력
-                  </button>
-                </div>
-                {/* 에러 메시지는 고정 높이로 아래 표시 */}
-                <div style={{ height: "20px", marginTop: "5px" }}>
-                  {nameError && (
-                    <div style={{ color: "red", fontSize: "14px" }}>
-                      {nameError}
-                    </div>
-                  )}
-                </div>
-              </form>
             )}
 
             <h2 style={{ color: "white" }}>🏆 랭킹</h2>
