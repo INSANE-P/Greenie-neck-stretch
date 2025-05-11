@@ -25,6 +25,14 @@ const Giraffe = () => {
 
   const [backgroundOffset, setBackgroundOffset] = useState(MAX_OFFSET);
   const [backgroundHeight, setBackgroundHeight] = useState(MAX_OFFSET);
+  const [towerWidthRatio, setTowerWidthRatio] = useState(35);
+  const [towerHeight, setTowerHeight] = useState(11000);
+  const [giraffeWidth, setGiraffeWidth] = useState(300);
+
+  const [bgTransitionSec, setBgTransitionSec] = useState(0.3);
+  const [towerTransitionSec, setTowerTransitionSec] = useState(0.3);
+  const [giraffeTransitionSec, setGiraffeTransitionSec] = useState(0.8);
+
   const [isKeyPressed, setIsKeyPressed] = useState(false);
   const [pressCount, setPressCount] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -287,7 +295,7 @@ const Giraffe = () => {
           height: `${backgroundHeight}px`,
           background:
             "linear-gradient(to bottom, #000000, #1a1a80, #3399ff, #66ccff, #99cc66)",
-          transition: "top 0.3s ease-out",
+          transition: `top ${bgTransitionSec}s ease-out`,
         }}
       />
 
@@ -400,12 +408,12 @@ const Giraffe = () => {
           top: `-${backgroundOffset}px`,
           left: "50%",
           transform: "translateX(-50%)",
-          width: "35%",
-          height: "11000px",
+          width: `${towerWidthRatio}%`,
+          height: `${towerHeight}px`,
           backgroundImage: `url(${brick})`,
           backgroundRepeat: "repeat-y",
           backgroundSize: "100% auto",
-          transition: "all 0.2s ease",
+          transition: `all ${giraffeTransitionSec}s ease`,
           zIndex: 10,
         }}
       />
@@ -415,7 +423,7 @@ const Giraffe = () => {
         style={{
           position: "fixed",
           bottom: `${neckOffset}px`,
-          transition: "bottom 0.8s cubic-bezier(0.25, 1, 0.5, 1)",
+          transition: `bottom ${giraffeTransitionSec}s cubic-bezier(0.25, 1, 0.5, 1)`,
           left: "50%",
           transform: "translateX(-50%)",
           zIndex: 20,
