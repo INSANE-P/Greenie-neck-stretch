@@ -5,6 +5,9 @@ import giraffeImage3 from "./space1.png";
 import giraffeImage4 from "./space2.png";
 import brick from "./brick.png";
 import changeCloud from "./changeCloud.png";
+import normalCloud from "./normalCloud.png";
+import planet1 from "./planet1.png";
+import planet2 from "./planet2.png";
 import goalBell from "./Goal_Bell.mp3";
 import { v4 as uuidv4 } from "uuid";
 import bell from "./bell.png";
@@ -422,30 +425,120 @@ const Giraffe = () => {
         }}
       />
       {/*바뀌는 구름 이미지 */}
-      <div style={{
-        position: "fixed",
-        top:`${5000 - backgroundOffset}px`, 
-        left: "50%",
-        transform: "translateX(-50%)",
-        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
-        zIndex: 25,}}
+      <div
+        style={{
+          position: "fixed",
+          top: `${5000 - backgroundOffset}px`,
+          left: "50%",
+          transform: "translateX(-50%)",
+          transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+          zIndex: 25,
+        }}
       >
-        <img src={changeCloud} alt="cloud" style={{
+        <img
+          src={normalCloud}
+          alt="cloud"
+          style={{
+            width: "1500px",
+            height: "auto",
+          }}
+        />
+      </div>
+      {/*중간의 구름 블록 1*/}
+      <div
+        style={{
+          position: "fixed",
+          top: `${8000 - backgroundOffset}px`,
+          left: "20%",
+          transform: "translateX(-50%)",
+          transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+          zIndex: 25,
+        }}
+      >
+        <img
+          src={normalCloud}
+          alt="cloud"
+          style={{
+            width: "500px",
+            height: "auto",
+          }}
+        />
+      </div>
+      {/*중간의 구름 블록 2 */}
+      <div
+        style={{
+          position: "fixed",
+          top: `${6500 - backgroundOffset}px`,
+          left: "75%",
+          transform: "translateX(-50%)",
+          transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+          zIndex: 25,
+        }}
+      >
+        <img
+          src={normalCloud}
+          alt="cloud"
+          style={{
+            width: "500px",
+            height: "auto",
+          }}
+        />
+      </div>
+
+      {/*중간의 행성 블록 1 */}
+      <div
+        style={{
+          position: "fixed",
+          top: `${3000 - backgroundOffset}px`,
+          left: "90%",
+          transform: "translateX(-50%)",
+          transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+          zIndex: 26,
+        }}
+      >
+        <img
+          src={planet1}
+          alt="planet1"
+          style={{
+            width: "1000px",
+            height: "auto",
+          }}
+        />
+      </div>
+
+      {/*중간의 행성 블록 2 */}
+      <div
+        style={{
+          position: "fixed",
+          top: `${1500 - backgroundOffset}px`,
+          left: "20%",
+          transform: "translateX(-50%)",
+          transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+          zIndex: 26,
+        }}
+      >
+        <img
+          src={planet2}
+          alt="planet2"
+          style={{
             width: "700px",
             height: "auto",
-          }}/>
+          }}
+        />
       </div>
+
       <div
-      style={{
-        position: "fixed",
-        top:`-${100+backgroundOffset}px`, 
-        left: "50%",
-        transform: "translateX(-50%)",
-        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
-        zIndex: 27,
-        }}>
-          <img src={bell} alt="bell" style={{width:"500px", height:"auto"}}/>
-        </div>
+        style={{
+          position: "fixed",
+          top: `-${backgroundOffset}px`,
+          left: "50%",
+          transform: "translateX(-50%)",
+          transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+          zIndex: 27,
+        }}
+      >
+        <img src={bell} alt="bell" style={{ width: "500px", height: "auto" }} />
+      </div>
       <div
         style={{
           position: "fixed",
@@ -457,10 +550,15 @@ const Giraffe = () => {
         }}
       >
         <img
-          src={pressCount > 50
-              ? (giraffeFrame === 0 ? giraffeImage3 : giraffeImage4)
-              : (giraffeFrame === 0 ? giraffeImage1 : giraffeImage2)
-            }
+          src={
+            pressCount > 50
+              ? giraffeFrame === 0
+                ? giraffeImage3
+                : giraffeImage4
+              : giraffeFrame === 0
+              ? giraffeImage1
+              : giraffeImage2
+          }
           alt="Giraffe"
           style={{
             width: `${giraffeWidth}px`,
