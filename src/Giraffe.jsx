@@ -1,10 +1,10 @@
-
 import { useEffect, useRef, useState } from "react";
-import giraffeImage1 from "./party1.png";
-import giraffeImage2 from "./party2.png";
-import giraffeImage3 from "./space1.png";
-import giraffeImage4 from "./space2.png";
-import brick from "./normalBrick.png";
+
+import giraffeImage from "./giraffe.png";
+import giraffeImage2 from "./closeEye.png";
+import giraffeImage3 from "./smileGreenie.png";
+import brick from "./brick.png";
+
 import goalBell from "./Goal_Bell.mp3";
 import { v4 as uuidv4 } from "uuid";
 
@@ -19,11 +19,10 @@ const Giraffe = () => {
   const MIN_OFFSET = 0;
   const SPACEBAR_GOAL_COUNT = 100;
 
-
   const PARTICLE_STAGE_1_START = 51;
   const PARTICLE_STAGE_2_START = 61;
   const PARTICLE_STAGE_3_START = 71;
-  
+
   const [backgroundOffset, setBackgroundOffset] = useState(MAX_OFFSET);
   const [backgroundHeight, setBackgroundHeight] = useState(MAX_OFFSET);
   const [isKeyPressed, setIsKeyPressed] = useState(false);
@@ -41,14 +40,13 @@ const Giraffe = () => {
   const [giraffeFrame, setGiraffeFrame] = useState(0);
   const [isGreenieUp, setIsGreenieUp] = useState(true);
 
-
   //이름 제출버튼 클릭시 점수를 저장하고 리더보드 모달을 띄우는 이벤트 핸들러러
   const onSubmitButtonClick = (e) => {
     e.preventDefault();
     if (isSubmitted) return;
     const clearTime = 15 - remainingTime;
     const playerId = uuidv4();
-    const newPlayer = { name: playerName, score: clearTime, id: playerId  };
+    const newPlayer = { name: playerName, score: clearTime, id: playerId };
     console.log(newPlayer);
     setRanking((prevRanking) =>
       [...prevRanking, newPlayer].sort((a, b) => a.score - b.score).slice(0, 5)
@@ -63,13 +61,13 @@ const Giraffe = () => {
     const newName = e.target.value;
     if (/\s/.test(newName)) return;
     setPlayerName(newName);
-    setNameError( validateId(newName));
+    setNameError(validateId(newName));
   };
 
   //id 규칙 검사 함수
-  const validateId = (name) => { 
-    if(!/^\d+$/.test(name)){
-      return "숫자만을 입력해주세요."
+  const validateId = (name) => {
+    if (!/^\d+$/.test(name)) {
+      return "숫자만을 입력해주세요.";
     }
 
     if (name.length !== 4) {
@@ -143,11 +141,11 @@ const Giraffe = () => {
   }, []);
 
   useEffect(() => {
-  if (isGameOver && !isTimeOver) {
-    const input = document.querySelector('input[name="name"]');
-    if (input) input.focus();
-  }
-}, [isGameOver, isTimeOver]);
+    if (isGameOver && !isTimeOver) {
+      const input = document.querySelector('input[name="name"]');
+      if (input) input.focus();
+    }
+  }, [isGameOver, isTimeOver]);
 
   useEffect(() => {
     if (remainingTime === 0 && !isGameOver) {
@@ -156,7 +154,6 @@ const Giraffe = () => {
       startTimeRef.current = null;
     }
   }, [remainingTime, isGameOver]);
-
 
   useEffect(() => {
     if (isGameOver && !isTimeOver) {
@@ -259,12 +256,12 @@ const Giraffe = () => {
   }, [isKeyPressed, isGameOver]);
 
   useEffect(() => {
-  const interval = setInterval(() => {
-    setGiraffeFrame((prev) => (prev === 0 ? 1 : 0));
-  }, 300);
+    const interval = setInterval(() => {
+      setGiraffeFrame((prev) => (prev === 0 ? 1 : 0));
+    }, 300);
 
-  return () => clearInterval(interval);
-}, []);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div
@@ -305,7 +302,7 @@ const Giraffe = () => {
           left: "50%",
           transform: "translateX(-50%)",
           color: remainingTime <= 5 ? "red" : "white",
-        fontSize: remainingTime <= 5 ? "60px" : "45px",
+          fontSize: remainingTime <= 5 ? "60px" : "45px",
           zIndex: 30,
           fontFamily: "'Luckiest Guy', cursive",
         }}
@@ -349,9 +346,11 @@ const Giraffe = () => {
         {/* 종 아이콘 */}
         <div
           style={{
+            position: "absolute",
             fontSize: "20px",
             color: "white",
             margin: "8px 0",
+            zIndex: 25,
           }}
         >
           🔔
@@ -392,7 +391,6 @@ const Giraffe = () => {
             fontSize: "24px",
             pointerEvents: "none",
             zIndex: 25,
-            transform: `rotate(${p.angle + p.lifetime * 360}deg)`,
           }}
         >
           🌟
@@ -400,6 +398,7 @@ const Giraffe = () => {
       ))}
       {/*벽돌*/}
       <div
+
   style={{
     position: "absolute",
     top: `-${backgroundOffset}px`,
@@ -417,6 +416,7 @@ const Giraffe = () => {
 
 
 
+
       {/* 기린 이미지 */}
       <div
         style={{
@@ -429,10 +429,8 @@ const Giraffe = () => {
         }}
       >
         <img
-            src={pressCount > 50
-              ? (giraffeFrame === 0 ? giraffeImage3 : giraffeImage4)
-              : (giraffeFrame === 0 ? giraffeImage1 : giraffeImage2)
-            }
+          src={giraffeFrame === 0 ? giraffeImage : giraffeImage2}
+
           alt="Giraffe"
           style={{
             width: "300px",
