@@ -180,26 +180,23 @@ const Giraffe = () => {
         if (startTimeRef.current === null) {
           startTimeRef.current = performance.now();
         }
-        if(isGreenieUp)
-          {
-            setNeckOffset((prev) => {
-              if (prev + 10 >= MAX_NECK_OFFSET) {
-                setIsGreenieUp(false);
-                return MAX_NECK_OFFSET;
-              }
-              return prev + 10;
-            });
-          }
-          else
-          {
-            setNeckOffset((prev) => {
-              if(prev -20 <= MIN_NECK_OFFSET){
-                setIsGreenieUp(true);
-                return MIN_NECK_OFFSET;
-              }
-              return prev -20;
-            });
-          }
+        if (isGreenieUp) {
+          setNeckOffset((prev) => {
+            if (prev + 10 >= MAX_NECK_OFFSET) {
+              setIsGreenieUp(false);
+              return MAX_NECK_OFFSET;
+            }
+            return prev + 10;
+          });
+        } else {
+          setNeckOffset((prev) => {
+            if (prev - 20 <= MIN_NECK_OFFSET) {
+              setIsGreenieUp(true);
+              return MIN_NECK_OFFSET;
+            }
+            return prev - 20;
+          });
+        }
         setBackgroundOffset((prev) => Math.max(prev - 100, MIN_OFFSET));
         setPressCount((prev) => {
           const nextCount = prev + 1;
@@ -398,24 +395,20 @@ const Giraffe = () => {
       ))}
       {/*벽돌*/}
       <div
-
-  style={{
-    position: "absolute",
-    top: `-${backgroundOffset}px`,
-    left: "50%",
-    transform: "translateX(-50%)",
-    width: "35%",                     
-    height: "11000px",
-    backgroundImage: `url(${brick})`,
-    backgroundRepeat: "repeat-y",
-    backgroundSize: "100% auto",     
-    zIndex: 10,
-  }}
-/>
-
-
-
-
+        style={{
+          position: "absolute",
+          top: `-${backgroundOffset}px`,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "35%",
+          height: "11000px",
+          backgroundImage: `url(${brick})`,
+          backgroundRepeat: "repeat-y",
+          backgroundSize: "100% auto",
+          transition: "all 0.2s ease",
+          zIndex: 10,
+        }}
+      />
 
       {/* 기린 이미지 */}
       <div
@@ -430,7 +423,6 @@ const Giraffe = () => {
       >
         <img
           src={giraffeFrame === 0 ? giraffeImage : giraffeImage2}
-
           alt="Giraffe"
           style={{
             width: "300px",
