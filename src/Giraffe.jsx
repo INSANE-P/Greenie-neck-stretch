@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
+
 import giraffeImage from "./giraffe.png";
 import giraffeImage2 from "./closeEye.png";
 import giraffeImage3 from "./smileGreenie.png";
 import brick from "./brick.png";
+
 import goalBell from "./Goal_Bell.mp3";
 import { v4 as uuidv4 } from "uuid";
 
@@ -11,7 +13,8 @@ const Giraffe = () => {
   const startTimeRef = useRef(null);
   const idCounter = useRef(0);
 
-  const MAX_NECK_OFFSET = 0;
+  const MAX_NECK_OFFSET = -60;
+  const MIN_NECK_OFFSET = -200;
   const MAX_OFFSET = 10000;
   const MIN_OFFSET = 0;
   const SPACEBAR_GOAL_COUNT = 100;
@@ -35,6 +38,7 @@ const Giraffe = () => {
   const [nameError, setNameError] = useState("");
   const [neckOffset, setNeckOffset] = useState(-400);
   const [giraffeFrame, setGiraffeFrame] = useState(0);
+  const [isGreenieUp, setIsGreenieUp] = useState(true);
 
   //이름 제출버튼 클릭시 점수를 저장하고 리더보드 모달을 띄우는 이벤트 핸들러러
   const onSubmitButtonClick = (e) => {
@@ -176,13 +180,26 @@ const Giraffe = () => {
         if (startTimeRef.current === null) {
           startTimeRef.current = performance.now();
         }
-
-        setNeckOffset((prev) => {
-          if (prev + 10 >= MAX_NECK_OFFSET) {
-            return MAX_NECK_OFFSET;
+        if(isGreenieUp)
+          {
+            setNeckOffset((prev) => {
+              if (prev + 10 >= MAX_NECK_OFFSET) {
+                setIsGreenieUp(false);
+                return MAX_NECK_OFFSET;
+              }
+              return prev + 10;
+            });
           }
-          return prev + 40;
-        });
+          else
+          {
+            setNeckOffset((prev) => {
+              if(prev -20 <= MIN_NECK_OFFSET){
+                setIsGreenieUp(true);
+                return MIN_NECK_OFFSET;
+              }
+              return prev -20;
+            });
+          }
         setBackgroundOffset((prev) => Math.max(prev - 100, MIN_OFFSET));
         setPressCount((prev) => {
           const nextCount = prev + 1;
@@ -379,28 +396,26 @@ const Giraffe = () => {
           🌟
         </div>
       ))}
-      {/*벽돌돌*/}
+      {/*벽돌*/}
       <div
-        style={{
-          position: "absolute",
-          top: `-${backgroundOffset}px`,
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "35%",
-          transition: "top 0.3s ease-out",
-          height: "11000px",
-          zIndex: 10,
-        }}
-      >
-        <img
-          src={brick}
-          alt="Brick Background"
-          style={{
-            width: "100%",
-            height: "100%",
-          }}
-        ></img>
-      </div>
+
+  style={{
+    position: "absolute",
+    top: `-${backgroundOffset}px`,
+    left: "50%",
+    transform: "translateX(-50%)",
+    width: "35%",                     
+    height: "11000px",
+    backgroundImage: `url(${brick})`,
+    backgroundRepeat: "repeat-y",
+    backgroundSize: "100% auto",     
+    zIndex: 10,
+  }}
+/>
+
+
+
+
 
       {/* 기린 이미지 */}
       <div
@@ -415,6 +430,7 @@ const Giraffe = () => {
       >
         <img
           src={giraffeFrame === 0 ? giraffeImage : giraffeImage2}
+
           alt="Giraffe"
           style={{
             width: "300px",
