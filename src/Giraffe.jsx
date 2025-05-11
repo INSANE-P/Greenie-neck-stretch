@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-
-import giraffeImage from "./giraffe.png";
-import giraffeImage2 from "./closeEye.png";
-import giraffeImage3 from "./smileGreenie.png";
+import giraffeImage1 from "./party1.png";
+import giraffeImage2 from "./party2.png";
+import giraffeImage3 from "./space1.png";
+import giraffeImage4 from "./space2.png";
 import brick from "./brick.png";
-
+import changeCloud from "./changeCloud.png";
 import goalBell from "./Goal_Bell.mp3";
 import { v4 as uuidv4 } from "uuid";
+import bell from "./bell.png";
 
 const Giraffe = () => {
   const audioRef = useRef(null);
@@ -14,7 +15,7 @@ const Giraffe = () => {
   const idCounter = useRef(0);
 
   const MAX_NECK_OFFSET = -60;
-  const MIN_NECK_OFFSET = -200;
+  const MIN_NECK_OFFSET = -280;
   const MAX_OFFSET = 10000;
   const MIN_OFFSET = 0;
   const SPACEBAR_GOAL_COUNT = 100;
@@ -192,19 +193,19 @@ const Giraffe = () => {
         }
         if (isGreenieUp) {
           setNeckOffset((prev) => {
-            if (prev + 10 >= MAX_NECK_OFFSET) {
+            if (prev + 30 >= MAX_NECK_OFFSET) {
               setIsGreenieUp(false);
               return MAX_NECK_OFFSET;
             }
-            return prev + 10;
+            return prev + 30;
           });
         } else {
           setNeckOffset((prev) => {
-            if (prev - 20 <= MIN_NECK_OFFSET) {
+            if (prev - 30 <= MIN_NECK_OFFSET) {
               setIsGreenieUp(true);
               return MIN_NECK_OFFSET;
             }
-            return prev - 20;
+            return prev - 30;
           });
         }
         setBackgroundOffset((prev) => Math.max(prev - 100, MIN_OFFSET));
@@ -420,8 +421,31 @@ const Giraffe = () => {
           zIndex: 10,
         }}
       />
-
-      {/* 기린 이미지 */}
+      {/*바뀌는 구름 이미지 */}
+      <div style={{
+        position: "fixed",
+        top:`${5000 - backgroundOffset}px`, 
+        left: "50%",
+        transform: "translateX(-50%)",
+        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+        zIndex: 25,}}
+      >
+        <img src={changeCloud} alt="cloud" style={{
+            width: "700px",
+            height: "auto",
+          }}/>
+      </div>
+      <div
+      style={{
+        position: "fixed",
+        top:`-${100+backgroundOffset}px`, 
+        left: "50%",
+        transform: "translateX(-50%)",
+        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+        zIndex: 27,
+        }}>
+          <img src={bell} alt="bell" style={{width:"500px", height:"auto"}}/>
+        </div>
       <div
         style={{
           position: "fixed",
@@ -433,7 +457,10 @@ const Giraffe = () => {
         }}
       >
         <img
-          src={giraffeFrame === 0 ? giraffeImage : giraffeImage2}
+          src={pressCount > 50
+              ? (giraffeFrame === 0 ? giraffeImage3 : giraffeImage4)
+              : (giraffeFrame === 0 ? giraffeImage1 : giraffeImage2)
+            }
           alt="Giraffe"
           style={{
             width: `${giraffeWidth}px`,
