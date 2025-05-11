@@ -4,7 +4,7 @@ import giraffeImage1 from "./party1.png";
 import giraffeImage2 from "./party2.png";
 import giraffeImage3 from "./space1.png";
 import giraffeImage4 from "./space2.png";
-import brick from "./brick.png"
+import brick from "./normalBrick.png";
 import goalBell from "./Goal_Bell.mp3";
 import { v4 as uuidv4 } from "uuid";
 
@@ -400,26 +400,22 @@ const Giraffe = () => {
       ))}
       {/*벽돌*/}
       <div
-      style={{
-        position: "absolute",
-        top: `-${backgroundOffset}px`,  
-        left: "50%",
-        transform: "translateX(-50%)", 
-        width: "35%",
-        transition: "top 0.3s ease-out",
-        height: "11000px",
-        zIndex: 10,  
-        }}
-        >
-        <img
-        src={brick}
-        alt="Brick Background"
-        style={{
-          width: "100%",
-          height: "100%",
-        }}
-        ></img>
-        </div>
+  style={{
+    position: "absolute",
+    top: `-${backgroundOffset}px`,
+    left: "50%",
+    transform: "translateX(-50%)",
+    width: "35%",                     
+    height: "11000px",
+    backgroundImage: `url(${brick})`,
+    backgroundRepeat: "repeat-y",
+    backgroundSize: "100% auto",     
+    zIndex: 10,
+  }}
+/>
+
+
+
 
       {/* 기린 이미지 */}
       <div
