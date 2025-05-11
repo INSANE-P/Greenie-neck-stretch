@@ -25,6 +25,14 @@ const Giraffe = () => {
 
   const [backgroundOffset, setBackgroundOffset] = useState(MAX_OFFSET);
   const [backgroundHeight, setBackgroundHeight] = useState(MAX_OFFSET);
+  const [towerWidthRatio, setTowerWidthRatio] = useState(35);
+  const [towerHeight, setTowerHeight] = useState(11000);
+  const [giraffeWidth, setGiraffeWidth] = useState(300);
+
+  const [bgTransitionSec, setBgTransitionSec] = useState(0.2);
+  const [towerTransitionSec, setTowerTransitionSec] = useState(0.2);
+  const [giraffeTransitionSec, setGiraffeTransitionSec] = useState(0.8);
+
   const [isKeyPressed, setIsKeyPressed] = useState(false);
   const [pressCount, setPressCount] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -39,6 +47,7 @@ const Giraffe = () => {
   const [neckOffset, setNeckOffset] = useState(-400);
   const [giraffeFrame, setGiraffeFrame] = useState(0);
   const [isGreenieUp, setIsGreenieUp] = useState(true);
+  const [isStartModalOpen, setIsStartModalOpen] = useState(true);
 
   //이름 제출버튼 클릭시 점수를 저장하고 리더보드 모달을 띄우는 이벤트 핸들러러
   const onSubmitButtonClick = (e) => {
@@ -179,27 +188,25 @@ const Giraffe = () => {
       if (e.code === "Space" && !isKeyPressed && !isGameOver) {
         if (startTimeRef.current === null) {
           startTimeRef.current = performance.now();
+          setIsStartModalOpen(false);
         }
-        if(isGreenieUp)
-          {
-            setNeckOffset((prev) => {
-              if (prev + 10 >= MAX_NECK_OFFSET) {
-                setIsGreenieUp(false);
-                return MAX_NECK_OFFSET;
-              }
-              return prev + 10;
-            });
-          }
-          else
-          {
-            setNeckOffset((prev) => {
-              if(prev -20 <= MIN_NECK_OFFSET){
-                setIsGreenieUp(true);
-                return MIN_NECK_OFFSET;
-              }
-              return prev -20;
-            });
-          }
+        if (isGreenieUp) {
+          setNeckOffset((prev) => {
+            if (prev + 10 >= MAX_NECK_OFFSET) {
+              setIsGreenieUp(false);
+              return MAX_NECK_OFFSET;
+            }
+            return prev + 10;
+          });
+        } else {
+          setNeckOffset((prev) => {
+            if (prev - 20 <= MIN_NECK_OFFSET) {
+              setIsGreenieUp(true);
+              return MIN_NECK_OFFSET;
+            }
+            return prev - 20;
+          });
+        }
         setBackgroundOffset((prev) => Math.max(prev - 100, MIN_OFFSET));
         setPressCount((prev) => {
           const nextCount = prev + 1;
@@ -238,6 +245,7 @@ const Giraffe = () => {
         setRemainingTime(15.0);
         setNeckOffset(-400);
         startTimeRef.current = null;
+        setIsStartModalOpen(true);
       }
     };
 
@@ -290,7 +298,7 @@ const Giraffe = () => {
           height: `${backgroundHeight}px`,
           background:
             "linear-gradient(to bottom, #000000, #1a1a80, #3399ff, #66ccff, #99cc66)",
-          transition: "top 0.3s ease-out",
+          transition: `top ${bgTransitionSec}s ease-out`,
         }}
       />
 
@@ -398,31 +406,27 @@ const Giraffe = () => {
       ))}
       {/*벽돌*/}
       <div
-
-  style={{
-    position: "absolute",
-    top: `-${backgroundOffset}px`,
-    left: "50%",
-    transform: "translateX(-50%)",
-    width: "35%",                     
-    height: "11000px",
-    backgroundImage: `url(${brick})`,
-    backgroundRepeat: "repeat-y",
-    backgroundSize: "100% auto",     
-    zIndex: 10,
-  }}
-/>
-
-
-
-
+        style={{
+          position: "absolute",
+          top: `-${backgroundOffset}px`,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: `${towerWidthRatio}%`,
+          height: `${towerHeight}px`,
+          backgroundImage: `url(${brick})`,
+          backgroundRepeat: "repeat-y",
+          backgroundSize: "100% auto",
+          transition: `all ${towerTransitionSec}s ease`,
+          zIndex: 10,
+        }}
+      />
 
       {/* 기린 이미지 */}
       <div
         style={{
           position: "fixed",
           bottom: `${neckOffset}px`,
-          transition: "bottom 0.8s cubic-bezier(0.25, 1, 0.5, 1)",
+          transition: `bottom ${giraffeTransitionSec}s cubic-bezier(0.25, 1, 0.5, 1)`,
           left: "50%",
           transform: "translateX(-50%)",
           zIndex: 20,
@@ -430,14 +434,89 @@ const Giraffe = () => {
       >
         <img
           src={giraffeFrame === 0 ? giraffeImage : giraffeImage2}
-
           alt="Giraffe"
           style={{
-            width: "300px",
+            width: `${giraffeWidth}px`,
             height: "auto",
           }}
         />
       </div>
+
+      {/* 게임 시작 모달 */}
+      {isStartModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            zIndex: 100,
+            clipPath: "circle(0% at center)",
+            animation: "growCircle 0.6s ease-out forwards",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "flex-start",
+            padding: "15vh 0",
+          }}
+        >
+          <div
+            style={{
+              position: "relative",
+              width: "80%",
+              height: "50%",
+              backgroundColor: "rgba(255, 255, 255, 0.05)",
+              border: "2px solid white",
+              borderRadius: "20px",
+              padding: "30px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              color: "white",
+            }}
+          >
+            {/* 제목 - 상단 중앙 고정 */}
+            <div
+              style={{
+                position: "absolute",
+                top: "20px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                fontSize: "36px",
+                fontWeight: "bold",
+                color: "lightgreen",
+              }}
+            >
+              그린이 목늘리기!
+            </div>
+
+            {/* 본문 내용 */}
+            <div
+              style={{ marginTop: "80px", fontSize: "24px", lineHeight: "1.6" }}
+            >
+              세종대학교 시계탑 안에
+              <br />
+              진짜 기린이 살고 있다는 소문, 들어봤나요?
+              <br />
+              <br />
+              <span style={{ color: "lightgreen" }}>
+                스페이스바를 연타해서
+              </span>{" "}
+              그린이의 목을 길~게 늘려
+              <br />
+              세종대학교 시계탑 꼭대기의 종을 울려주세요!
+              <br />
+              <br />
+              <span style={{ fontSize: "18px", color: "#ccc" }}>
+                스페이스바를 눌러 게임을 시작하세요.
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 모달 */}
       {isGameOver && (
