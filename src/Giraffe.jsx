@@ -329,9 +329,11 @@ const Giraffe = () => {
         {/* 종 아이콘 */}
         <div
           style={{
+            position: "absolute",
             fontSize: "20px",
             color: "white",
             margin: "8px 0",
+            zIndex: 25,
           }}
         >
           🔔
