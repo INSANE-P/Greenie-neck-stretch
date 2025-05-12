@@ -29,5 +29,5 @@
 ## 🖼️ 게임 화면 예시
 
 ```md
-![게임 플레이 화면](./src/screenshot.png)
+![게임 플레이 화면](./screenshot.png)
 
