@@ -226,6 +226,11 @@ const Giraffe = () => {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
+    const tag = e.target.tagName.toLowerCase();
+    const isTyping = tag === 'input' || tag === 'textarea' || e.target.isContentEditable;
+
+  // 입력 중일 때 R/r 누르면 무시
+    if ((e.key === 'r' || e.key === 'R') && isTyping) return;
       if (
         e.code === "Space" && 
         !isKeyPressed && 
@@ -312,7 +317,7 @@ const Giraffe = () => {
       
 
 
-      if (e.key === "r" || e.key === "R") {
+      if ((e.key === "r" && !isStartModalOpen || e.key === "R" && !isStartModalOpen)) {
         setIsGameOver(false);
         setIsTimeOver(false);
         setPressCount(0);
@@ -374,7 +379,7 @@ const Giraffe = () => {
           position: "absolute",
           top: `-${backgroundOffset}px`,
           width: "100%",
-          height: `${backgroundHeight}px`,
+          height: `${backgroundHeight+window.innerHeight}px`,
           background:
             "linear-gradient(to bottom, #000000, #1a1a80, #3399ff, #66ccff, #99cc66)",
           transition: `top ${bgTransitionSec}s ease-out`,
@@ -394,9 +399,7 @@ const Giraffe = () => {
           fontFamily: 'LOTTERIACHAB',
         }}
       >
-        {remainingTime.toFixed(2)}s
-        <br/>
-        {pressCount}
+        {remainingTime.toFixed(2)}
       </div>
 
       {/* 오른쪽 진행 게이지 + 종 아이콘 */}
@@ -491,14 +494,14 @@ const Giraffe = () => {
       {/*바뀌는 구름 이미지 */}
       <div style={{
         position: "fixed",
-        top:`${5000 - backgroundOffset}px`, 
+        top:`${5100 - backgroundOffset}px`, 
         left: "50%",
         transform: "translateX(-50%)",
         transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
         zIndex: 25,}}
       >
         <img src={changeCloud} alt="cloud" style={{
-            width: "900px",
+            width: "1000px",
             height: "auto",
           }}/>
       </div>
@@ -511,7 +514,7 @@ const Giraffe = () => {
         transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
         zIndex: 27,
         }}>
-          <img src={bell} alt="bell" style={{width:"500px", height:"auto"}}/>
+          <img src={bell} alt="bell" style={{width:"700px", height:"auto"}}/>
         </div>
       <div
         style={{
