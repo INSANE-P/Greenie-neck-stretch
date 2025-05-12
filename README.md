@@ -1,70 +1,33 @@
-# Getting Started with Create React App
+# 🦒 그린이 목늘리기
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+스페이스바를 연타해서 그리디 마스코트인 기린 '그린이'의 목을 늘려  
+세종대학교 시계탑의 종을 울리는 게임!
 
-## Available Scripts
+<br/>
 
-In the project directory, you can run:
+## 🎮 게임 개요
 
-### `npm start`
+- **목표:** 제한 시간 15초 안에 스페이스바를 연타하여 그린이의 목을 빠르게게 위로 늘리세요!
+- **배경:** 세종대학교 시계탑 안에 진짜 기린이 살고 있다는 전설... 이 전설의 진실을 확인해보세요!
+- **포인트:** 
+  - 스페이스바 입력에 따라 그린이의 목이 위아래로 번갈아가며 늘어나며
+  - 일정 횟수를 넘기면 종🔔이 울리며 성공!
+  - 랭킹에 자신의 기록을 남길 수 있어요.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+<br/>
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## ⏱️ 게임 방식
 
-### `npm test`
+1. 시작 시 4자리 ID 입력 (공백 없이)
+2. `스페이스바`를 반복해서 누르기 시작하면 게임이 시작됩니다
+3. 15초 내에 목표 입력 수(`100회`)에 도달하면 성공
+4. 결과 타이머와 함께 랭킹에 기록됩니다
+5. `R` 키를 눌러 게임을 다시 시작할 수 있습니다
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+<br/>
 
-### `npm run build`
+## 🖼️ 게임 화면 예시
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```md
+![게임 플레이 화면](./screenshot.png)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
