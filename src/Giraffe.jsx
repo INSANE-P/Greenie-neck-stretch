@@ -6,7 +6,6 @@ import giraffeImage4 from "./space2.png";
 import brick from "./brick.png";
 import changeCloud from "./changeCloud.png";
 import goalBell from "./Goal_Bell.mp3";
-import { v4 as uuidv4 } from "uuid";
 import bell from "./bell.png";
 import planet1 from "./jjang.png";
 import planet2 from "./himne.png";
@@ -21,6 +20,7 @@ import clock from "./clock.png";
 import fireworks from "./balloon.png";
 import trophy from "./trophy1.png";
 import "./App.css";
+
 
 
 const Giraffe = () => {
@@ -40,8 +40,8 @@ const Giraffe = () => {
   const towerWidthRatio = 35;
   const towerHeight = 11000;
   const giraffeWidth = 300;
-  const bgTransitionSec = 0.2;
-  const towerTransitionSec = 0.2;
+  const bgTransitionSec = 0.1;
+  const towerTransitionSec = 0.1;
   const giraffeTransitionSec = 0.8;
 
   const [backgroundOffset, setBackgroundOffset] = useState(MAX_OFFSET);
@@ -57,7 +57,7 @@ const Giraffe = () => {
   const [remainingTime, setRemainingTime] = useState(15.0);
   const [ranking, setRanking] = useState([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [playerName, setPlayerName] = useState("");
+  const [playerId, setPlayerName] = useState("");
   const [nameError, setNameError] = useState("");
   const [neckOffset, setNeckOffset] = useState(-400);
   const [giraffeFrame, setGiraffeFrame] = useState(0);
@@ -67,6 +67,34 @@ const Giraffe = () => {
 
   const  submittedRef = useRef(false);
   
+  const submitScore = async (userId, score) => {
+  const token = "WIDJ*U@wojqdi@EJE@12+EII-Aw9deiaw9ied0qJ@OIEJaoiwja9d";
+  const payload = {
+    gameName: "greeny-neck",
+    userId,
+    score,
+  };
+
+  try {
+    const res = await fetch(
+      "https://0by7j8suf2.execute-api.ap-northeast-2.amazonaws.com/proxy/api/result",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    console.log("✅ 점수 전송 성공");
+  } catch (e) {
+    console.error("❌ 점수 전송 오류:", e);
+  }
+};
+
   useEffect(() => {
     if (isStartModalOpen) {
       setTimeout(() => {
@@ -78,7 +106,7 @@ const Giraffe = () => {
   //이름 제출버튼 클릭시 점수를 저장하고 리더보드 모달을 띄우는 이벤트 핸들러러
   const handlePlayerSubmit = (e) => {
     e.preventDefault();
-    if (!playerName || nameError) return;
+    if (!playerId || nameError) return;
     setIsStartModalOpen(false);
   };
 
@@ -239,18 +267,20 @@ const Giraffe = () => {
 
             const clearTime = 15 - remainingTime;
             setFinalClearTime(clearTime);
-            const playerId = uuidv4();
             const newPlayer = {
-              name: playerName,
+              name: playerId,
               score: clearTime,
               id: playerId,
             };
+            
+            submitScore(playerId,Number(clearTime.toFixed(2)));
+            
 
             setRanking((prevRanking) =>
               [...prevRanking, newPlayer]
                 .sort((a, b) => a.score - b.score)
                 .slice(0, 5)
-            );
+            ); // 필요 시 삭제
 
             setIsSubmitted(true);
             setPlayerName("");
@@ -259,6 +289,8 @@ const Giraffe = () => {
               audioRef.current.play();
             }
           }
+
+
 
           if (nextCount >= PARTICLE_STAGE_1_START) {
             if (nextCount < PARTICLE_STAGE_2_START) {
@@ -275,6 +307,10 @@ const Giraffe = () => {
 
         setIsKeyPressed(true);
       }
+
+
+      
+
 
       if (e.key === "r" || e.key === "R") {
         setIsGameOver(false);
@@ -359,10 +395,13 @@ const Giraffe = () => {
         }}
       >
         {remainingTime.toFixed(2)}s
+        <br/>
+        {pressCount}
       </div>
 
       {/* 오른쪽 진행 게이지 + 종 아이콘 */}
       <div
+      
         style={{
           position: "fixed",
           right: "40px",
@@ -692,6 +731,7 @@ const Giraffe = () => {
               <form onSubmit={handlePlayerSubmit}>
                 <div
                   style={{
+                  
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -701,15 +741,15 @@ const Giraffe = () => {
                   <input
                     type="text"
                     name="name"
-                    value={playerName}
+                    value={playerId}
                     onChange={handleNameChange}
                     autoComplete="off"
                     required
-                    style={{ width: "300px", height: "50px" }}
+                    style={{ width: "300px", height: "50px", fontSize: "40px"}}
                   />
                   <button
                     type="submit"
-                    disabled={!!nameError || !playerName}
+                    disabled={!!nameError || !playerId}
                     style={{ width: "100px", height: "55px" }}
                   >
                     입력
@@ -952,4 +992,6 @@ const Giraffe = () => {
     </div>
   );
 };
+
+
 export default Giraffe;
