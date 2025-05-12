@@ -8,6 +8,20 @@ import changeCloud from "./changeCloud.png";
 import goalBell from "./Goal_Bell.mp3";
 import { v4 as uuidv4 } from "uuid";
 import bell from "./bell.png";
+import planet1 from "./jjang.png";
+import planet2 from "./himne.png";
+import planet3 from "./cando.png";
+import moon from "./moon1.png";
+import rocket from "./rocket.png";
+import cloud1 from "./10.png";
+import cloud2 from "./20.png";
+import cloud3 from "./30.png";
+import cloud4 from "./40.png";
+import clock from "./clock.png";
+import fireworks from "./balloon.png";
+import trophy from "./trophy1.png";
+import "./App.css";
+
 
 const Giraffe = () => {
   const audioRef = useRef(null);
@@ -23,16 +37,16 @@ const Giraffe = () => {
   const PARTICLE_STAGE_1_START = 51;
   const PARTICLE_STAGE_2_START = 61;
   const PARTICLE_STAGE_3_START = 71;
+  const towerWidthRatio = 35;
+  const towerHeight = 11000;
+  const giraffeWidth = 300;
+  const bgTransitionSec = 0.2;
+  const towerTransitionSec = 0.2;
+  const giraffeTransitionSec = 0.8;
 
   const [backgroundOffset, setBackgroundOffset] = useState(MAX_OFFSET);
   const [backgroundHeight, setBackgroundHeight] = useState(MAX_OFFSET);
-  const [towerWidthRatio, setTowerWidthRatio] = useState(35);
-  const [towerHeight, setTowerHeight] = useState(11000);
-  const [giraffeWidth, setGiraffeWidth] = useState(300);
 
-  const [bgTransitionSec, setBgTransitionSec] = useState(0.2);
-  const [towerTransitionSec, setTowerTransitionSec] = useState(0.2);
-  const [giraffeTransitionSec, setGiraffeTransitionSec] = useState(0.8);
 
   const [isKeyPressed, setIsKeyPressed] = useState(false);
   const [pressCount, setPressCount] = useState(0);
@@ -49,21 +63,23 @@ const Giraffe = () => {
   const [giraffeFrame, setGiraffeFrame] = useState(0);
   const [isGreenieUp, setIsGreenieUp] = useState(true);
   const [isStartModalOpen, setIsStartModalOpen] = useState(true);
+  const [finalClearTime, setFinalClearTime] = useState(null);
 
+  const  submittedRef = useRef(false);
+  
+  useEffect(() => {
+    if (isStartModalOpen) {
+      setTimeout(() => {
+        const input = document.querySelector('input[name="name"]');
+        if (input) input.focus();
+      }, 0);
+    }
+  }, [isStartModalOpen]);
   //이름 제출버튼 클릭시 점수를 저장하고 리더보드 모달을 띄우는 이벤트 핸들러러
-  const onSubmitButtonClick = (e) => {
+  const handlePlayerSubmit = (e) => {
     e.preventDefault();
-    if (isSubmitted) return;
-    const clearTime = 15 - remainingTime;
-    const playerId = uuidv4();
-    const newPlayer = { name: playerName, score: clearTime, id: playerId };
-    console.log(newPlayer);
-    setRanking((prevRanking) =>
-      [...prevRanking, newPlayer].sort((a, b) => a.score - b.score).slice(0, 5)
-    );
-    setIsSubmitted(true);
-    setPlayerName("");
-    e.target.name.blur();
+    if (!playerName || nameError) return;
+    setIsStartModalOpen(false);
   };
 
   //이름 인풋 이벤트 핸들러
@@ -76,10 +92,6 @@ const Giraffe = () => {
 
   //id 규칙 검사 함수
   const validateId = (name) => {
-    if (!/^\d+$/.test(name)) {
-      return "숫자만을 입력해주세요.";
-    }
-
     if (name.length !== 4) {
       return "4자리의 id를 입력해주세요.";
     }
@@ -151,11 +163,11 @@ const Giraffe = () => {
   }, []);
 
   useEffect(() => {
-    if (isGameOver && !isTimeOver) {
+    if (isGameOver && !isTimeOver && isStartModalOpen) {
       const input = document.querySelector('input[name="name"]');
       if (input) input.focus();
     }
-  }, [isGameOver, isTimeOver]);
+  }, [isGameOver, isTimeOver, isStartModalOpen]);
 
   useEffect(() => {
     if (remainingTime === 0 && !isGameOver) {
@@ -186,7 +198,12 @@ const Giraffe = () => {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.code === "Space" && !isKeyPressed && !isGameOver) {
+      if (
+        e.code === "Space" && 
+        !isKeyPressed && 
+        !isGameOver && 
+        !isStartModalOpen
+      ) {
         if (startTimeRef.current === null) {
           startTimeRef.current = performance.now();
           setIsStartModalOpen(false);
@@ -213,9 +230,31 @@ const Giraffe = () => {
           const nextCount = prev + 1;
 
           if (nextCount >= SPACEBAR_GOAL_COUNT) {
+            if (submittedRef.current) return;
+            submittedRef.current = true;
             setIsTimeOver(false);
             setIsGameOver(true);
             startTimeRef.current = null;
+            setIsSubmitted(true);
+
+            const clearTime = 15 - remainingTime;
+            setFinalClearTime(clearTime);
+            const playerId = uuidv4();
+            const newPlayer = {
+              name: playerName,
+              score: clearTime,
+              id: playerId,
+            };
+
+            setRanking((prevRanking) =>
+              [...prevRanking, newPlayer]
+                .sort((a, b) => a.score - b.score)
+                .slice(0, 5)
+            );
+
+            setIsSubmitted(true);
+            setPlayerName("");
+
             if (audioRef.current) {
               audioRef.current.play();
             }
@@ -247,6 +286,9 @@ const Giraffe = () => {
         setNeckOffset(-400);
         startTimeRef.current = null;
         setIsStartModalOpen(true);
+        submittedRef.current = false;
+        setIsSubmitted(false);
+        setPlayerName("");
       }
     };
 
@@ -262,12 +304,12 @@ const Giraffe = () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [isKeyPressed, isGameOver]);
+  }, [isKeyPressed, isGameOver, isStartModalOpen]);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setGiraffeFrame((prev) => (prev === 0 ? 1 : 0));
-    }, 300);
+    }, 400);
 
     return () => clearInterval(interval);
   }, []);
@@ -313,24 +355,10 @@ const Giraffe = () => {
           color: remainingTime <= 5 ? "red" : "white",
           fontSize: remainingTime <= 5 ? "60px" : "45px",
           zIndex: 30,
-          fontFamily: "'Luckiest Guy', cursive",
+          fontFamily: 'LOTTERIACHAB',
         }}
       >
         {remainingTime.toFixed(2)}s
-      </div>
-
-      {/* 스페이스바 카운트 표시 */}
-      <div
-        style={{
-          position: "absolute",
-          top: "20px",
-          left: "20px",
-          color: "white",
-          fontSize: "14px",
-          zIndex: 30,
-        }}
-      >
-        Spacebar Count: {pressCount}
       </div>
 
       {/* 오른쪽 진행 게이지 + 종 아이콘 */}
@@ -431,7 +459,7 @@ const Giraffe = () => {
         zIndex: 25,}}
       >
         <img src={changeCloud} alt="cloud" style={{
-            width: "700px",
+            width: "900px",
             height: "auto",
           }}/>
       </div>
@@ -467,9 +495,130 @@ const Giraffe = () => {
             height: "auto",
           }}
         />
+      {/*배경 오브젝트 */}
+      {/*행성 1*/}
+      </div>
+      <div style={{
+        position: "fixed",
+        top:`${-backgroundOffset}px`, 
+        left: "20%",
+        transform: "translateX(-50%)",
+        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+        zIndex: 7,}}
+      >
+        <img src={planet1} alt="planet" style={{
+            width: "400px",
+            height: "auto",
+          }}/>
+      </div>
+      {/*로켓*/}
+      <div style={{
+        position: "fixed",
+        top:`${1000 - backgroundOffset}px`, 
+        right: "0%",
+        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+        zIndex: 7,}}
+      >
+        <img src={rocket} alt="rocket" style={{
+            width: "400px",
+            height: "auto",
+          }}/>
+      </div>
+      <div style={{
+        position: "fixed",
+        top:`${2000 - backgroundOffset}px`, 
+        left: "20%",
+        transform: "translateX(-50%)",
+        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+        zIndex: 7,}}
+      >
+        <img src={planet2} alt="planet" style={{
+            width: "400px",
+            height: "auto",
+          }}/>
+      </div>
+      {/*행성 3*/}
+      <div style={{
+        position: "fixed",
+        top:`${3000 - backgroundOffset}px`, 
+        right: "0%",
+        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+        zIndex: 7,}}
+      >
+        <img src={planet3} alt="planet2" style={{
+            width: "400px",
+            height: "auto",
+          }}/>
+      </div>
+      {/*행성 4*/}
+      <div style={{
+        position: "fixed",
+        top:`${4000 - backgroundOffset}px`, 
+        left: "20%",
+        transform: "translateX(-50%)",
+        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+        zIndex: 7,}}
+      >
+        <img src={moon} alt="planet2" style={{
+            width: "400px",
+            height: "auto",
+          }}/>
       </div>
 
-      {/* 게임 시작 모달 */}
+      {/*구름 1*/}
+      <div style={{
+        position: "fixed",
+        top:`${6000 - backgroundOffset}px`, 
+        left: "20%",
+        transform: "translateX(-50%)",
+        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+        zIndex: 7,}}
+      >
+        <img src={cloud4} alt="rocket" style={{
+            width: "450px",
+            height: "auto",
+          }}/>
+      </div>
+      <div style={{
+        position: "fixed",
+        top:`${7000 - backgroundOffset}px`, 
+        right: "0%",
+        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+        zIndex: 7,}}
+      >
+        <img src={cloud3} alt="planet" style={{
+            width: "450px",
+            height: "auto",
+          }}/>
+      </div>
+      {/*구름 2*/}
+      <div style={{
+        position: "fixed",
+        top:`${8000 - backgroundOffset}px`, 
+        left: "20%",
+        transform: "translateX(-50%)",
+        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+        zIndex: 7,}}
+      >
+        <img src={cloud2} alt="planet2" style={{
+            width: "450px",
+            height: "auto",
+          }}/>
+      </div>
+      {/*구름 3*/}
+      <div style={{
+        position: "fixed",
+        top:`${9000 - backgroundOffset}px`, 
+        right: "0%",
+        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+        zIndex: 7,}}
+      >
+        <img src={cloud1} alt="planet2" style={{
+            width: "450px",
+            height: "auto",
+          }}/>
+      </div>
+
       {isStartModalOpen && (
         <div
           style={{
@@ -484,15 +633,15 @@ const Giraffe = () => {
             animation: "growCircle 0.6s ease-out forwards",
             display: "flex",
             justifyContent: "center",
-            alignItems: "flex-start",
-            padding: "15vh 0",
+            alignItems: "center",
           }}
         >
+          {/*배경 이미지 */}
           <div
             style={{
               position: "relative",
               width: "80%",
-              height: "50%",
+              height: "70%",
               backgroundColor: "rgba(255, 255, 255, 0.05)",
               border: "2px solid white",
               borderRadius: "20px",
@@ -512,9 +661,10 @@ const Giraffe = () => {
                 top: "20px",
                 left: "50%",
                 transform: "translateX(-50%)",
-                fontSize: "36px",
+                fontSize: "50px",
                 fontWeight: "bold",
                 color: "lightgreen",
+                fontFamily: 'YOnepickTTF-Bold',
               }}
             >
               그린이 목늘리기!
@@ -522,8 +672,9 @@ const Giraffe = () => {
 
             {/* 본문 내용 */}
             <div
-              style={{ marginTop: "80px", fontSize: "24px", lineHeight: "1.6" }}
+              style={{ marginTop: "80px", fontSize: "24px", lineHeight: "1.6", fontFamily: 'YOnepickTTF-Bold', }}
             >
+              <br />
               세종대학교 시계탑 안에
               <br />
               진짜 기린이 살고 있다는 소문, 들어봤나요?
@@ -536,6 +687,43 @@ const Giraffe = () => {
               <br />
               세종대학교 시계탑 꼭대기의 종을 울려주세요!
               <br />
+              <br />
+              {/*플레이어 이름 입력*/}
+              <form onSubmit={handlePlayerSubmit}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "10px",
+                  }}
+                >
+                  <input
+                    type="text"
+                    name="name"
+                    value={playerName}
+                    onChange={handleNameChange}
+                    autoComplete="off"
+                    required
+                    style={{ width: "300px", height: "50px" }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!!nameError || !playerName}
+                    style={{ width: "100px", height: "55px" }}
+                  >
+                    입력
+                  </button>
+                </div>
+                {/* 에러 메시지는 고정 높이로 아래 표시 */}
+                <div style={{ height: "20px", marginTop: "5px" }}>
+                  {nameError && (
+                    <div style={{ color: "red", fontSize: "14px" }}>
+                      {nameError}
+                    </div>
+                  )}
+                </div>
+              </form>
               <br />
               <span style={{ fontSize: "18px", color: "#ccc" }}>
                 스페이스바를 눌러 게임을 시작하세요.
@@ -571,61 +759,113 @@ const Giraffe = () => {
             }}
           >
             {isTimeOver ? (
-              <div style={{ fontSize: "70px" }}>⏱ 시간 종료!</div>
-            ) : (
-              <>
-                <div style={{ fontSize: "70px" }}>🎉 성공!</div>
-                <div style={{ fontSize: "50px", marginTop: "10px" }}>
-                  ⏱ {(15 - remainingTime).toFixed(2)}초
-                </div>
-              </>
-            )}
-            {/*플레이어 이름 입력*/}
-            {!isTimeOver && (
-              <form onSubmit={onSubmitButtonClick}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "10px",
-                  }}
-                >
-                  <input
-                    type="text"
-                    name="name"
-                    value={playerName}
-                    onChange={handleNameChange}
-                    required
-                    style={{ width: "300px", height: "50px" }}
+              <div
+              style={{
+                display: "flex",
+                alignItems: "center",        
+                justifyContent: "center",
+                }}
+              >
+                <img
+                  src={clock}
+                  alt="timer"
+                  style={{ width: "60px", height: "60px", marginRight: "10px" }}
                   />
-                  <button
-                    type="submit"
-                    disabled={!!nameError || !playerName}
-                    style={{ width: "100px", height: "55px" }}
+                <div style={{ fontSize: "60px",fontFamily: 'YOnepickTTF-Bold', }}>시간 종료!</div>
+              </div>
+            ) : (
+              <div>
+                <div
+                style={{
+                display: "flex",
+                alignItems: "center",        
+                justifyContent: "center",
+                }}
+                >
+                  <img 
+                  src={fireworks} 
+                  alt="fireworks"
+                  style={{ width: "60px", height: "60px", marginRight: "10px" }}
+                  />
+                  <div style={{ color:"#7CFF8D", fontSize: "60px", fontFamily: 'YOnepickTTF-Bold' }}>성공</div>
+                  <img 
+                  src={fireworks} 
+                  alt="fireworks"
+                  style={{ width: "60px", height: "60px", marginRight: "10px" }}
+                  />
+                </div>
+              <div
+              style={{
+                display: "flex",
+                alignItems: "center",        
+                justifyContent: "center",
+                }}
+                >
+                  <img
+                  src={clock}
+                  alt="timer"
+                  style={{ width: "35px", height: "35px", marginRight: "10px" }}
+                  />
+                  <div
+                  style={{
+                    color: "#1e90ff",
+                    fontSize: "35px",
+                    fontFamily: 'YOnepickTTF-Bold',
+                  }}
                   >
-                    입력
-                  </button>
-                </div>
-                {/* 에러 메시지는 고정 높이로 아래 표시 */}
-                <div style={{ height: "20px", marginTop: "5px" }}>
-                  {nameError && (
-                    <div style={{ color: "red", fontSize: "14px" }}>
-                      {nameError}
+                    {finalClearTime?.toFixed(2)}초
                     </div>
-                  )}
-                </div>
-              </form>
+                    <img
+                  src={clock}
+                  alt="timer"
+                  style={{ width: "40px", height: "40px", marginRight: "10px" }}
+                  />
+                  </div>
+                  </div>
             )}
-
-            <h2 style={{ color: "white" }}>🏆 랭킹</h2>
-            <table
+            <div
+            style={{
+                display: "flex",
+                alignItems: "center",        
+                justifyContent: "center",
+                }}
+            >
+              <img 
+              src={trophy} 
+              alt="trophy"
+              style={{ 
+                width: "35px",
+                height: "35px", 
+              }} 
+              />
+              <h2 
+            style={{ 
+              fontSize:"40px",
+              fontWeight: "bold",
+              color: "#FFC107", 
+              fontFamily: 'YOnepickTTF-Bold',
+              margin: "20px", 
+              }}
+              >
+                랭킹
+              </h2>
+              <img 
+              src={trophy} 
+              alt="trophy"
+              style={{ 
+                width: "35px",
+                height: "35px", 
+              }} 
+              />
+            </div>
+            <table 
               style={{
                 color: "white",
                 fontSize: "25px",
                 margin: "0 auto",
                 borderCollapse: "collapse",
                 border: "2px solid white",
+                fontFamily: 'YOnepickTTF-Bold',
               }}
             >
               <thead>
@@ -643,7 +883,7 @@ const Giraffe = () => {
                     style={{
                       width: "150px",
                       padding: "8px",
-                      border: "1px solid white",
+                      border: "1px solid white"
                     }}
                   >
                     이름
@@ -672,6 +912,7 @@ const Giraffe = () => {
                           padding: "8px",
                           textAlign: "center",
                           border: "1px solid white",
+                          fontWeight: "bold" ,
                         }}
                       >
                         {i + 1}
@@ -681,6 +922,7 @@ const Giraffe = () => {
                           padding: "8px",
                           textAlign: "center",
                           border: "1px solid white",
+                          fontWeight: "bold" ,
                         }}
                       >
                         {r.name}
@@ -690,6 +932,7 @@ const Giraffe = () => {
                           padding: "8px",
                           textAlign: "center",
                           border: "1px solid white",
+                          fontWeight: "bold" ,
                         }}
                       >
                         {r.score.toFixed(2)}초
@@ -699,7 +942,7 @@ const Giraffe = () => {
                 })}
               </tbody>
             </table>
-            <div style={{ color: "white", fontSize: "30px" }}>
+            <div style={{ color: "white", fontSize: "25px", fontFamily: 'YOnepickTTF-Bold', }}>
               R키를 눌러 재시작
             </div>
           </div>
