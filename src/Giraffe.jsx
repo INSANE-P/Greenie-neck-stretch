@@ -68,11 +68,13 @@ const Giraffe = () => {
   const  submittedRef = useRef(false);
   
   const submitScore = async (userId, score) => {
-  const token = "WIDJ*U@wojqdi@EJE@12+EII-Aw9deiaw9ied0qJ@OIEJaoiwja9d";
+
+  const token = process.env.REACT_APP_API_TOKEN;
+  const formattedScore = Number(score.toFixed(2));
   const payload = {
     gameName: "greeny-neck",
-    userId,
-    score,
+    userId: userId,
+    score: formattedScore,
   };
 
   try {
@@ -94,6 +96,56 @@ const Giraffe = () => {
     console.error("❌ 점수 전송 오류:", e);
   }
 };
+
+const fetchRanking = async () => {
+  const token = process.env.REACT_APP_API_TOKEN;
+
+  try {
+    const res = await fetch(
+      'https://0by7j8suf2.execute-api.ap-northeast-2.amazonaws.com/proxy/api/ranking/greenie-neck',
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = await res.json();
+    if (!data || !Array.isArray(data.rankings)) {
+      console.error("❌ 랭킹 데이터 형식 오류:", data);
+      return [];
+    }
+
+    return data.rankings;
+
+  } catch (err) {
+    console.error('랭킹 불러오기 실패:', err);
+    return [];
+  }
+};
+
+const handleSubmitResult = async(score) =>{
+  if (submittedRef.current) return;
+
+  startTimeRef.current = null; 
+
+  setFinalClearTime(score);
+
+  await submitScore(playerId, score);
+  const newRanking = await fetchRanking();
+  const top5 = newRanking.slice(0,5);
+  
+  submittedRef.current = true;
+  setRanking(top5);
+}
+useEffect(() => {
+  if (isGameOver && isTimeOver && !submittedRef.current) {
+    handleSubmitResult(15.00); 
+  }
+}, [isGameOver, isTimeOver]);
+
 
   useEffect(() => {
     if (isStartModalOpen) {
@@ -224,128 +276,105 @@ const Giraffe = () => {
     }
   }, [isGameOver, isTimeOver]);
 
-  useEffect(() => {
-    const handleKeyDown = (e) => {
+useEffect(() => {
+  const handleKeyDown = async (e) => {
     const tag = e.target.tagName.toLowerCase();
-    const isTyping = tag === 'input' || tag === 'textarea' || e.target.isContentEditable;
+    const isTyping =
+      tag === "input" || tag === "textarea" || e.target.isContentEditable;
 
-  // 입력 중일 때 R/r 누르면 무시
-    if ((e.key === 'r' || e.key === 'R') && isTyping) return;
-      if (
-        e.code === "Space" && 
-        !isKeyPressed && 
-        !isGameOver && 
-        !isStartModalOpen
-      ) {
-        if (startTimeRef.current === null) {
-          startTimeRef.current = performance.now();
-          setIsStartModalOpen(false);
+    if ((e.key === "r" || e.key === "R") && isTyping) return;
+
+    if (
+      e.code === "Space" &&
+      !isKeyPressed &&
+      !isGameOver &&
+      !isStartModalOpen
+    ) {
+      if (startTimeRef.current === null) {
+        startTimeRef.current = performance.now();
+        setIsStartModalOpen(false);
+      }
+
+      // 기린 목 처리
+      setNeckOffset((prev) => {
+        const next = isGreenieUp ? prev + 30 : prev - 30;
+        if (next >= MAX_NECK_OFFSET) {
+          setIsGreenieUp(false);
+          return MAX_NECK_OFFSET;
+        } else if (next <= MIN_NECK_OFFSET) {
+          setIsGreenieUp(true);
+          return MIN_NECK_OFFSET;
         }
-        if (isGreenieUp) {
-          setNeckOffset((prev) => {
-            if (prev + 30 >= MAX_NECK_OFFSET) {
-              setIsGreenieUp(false);
-              return MAX_NECK_OFFSET;
-            }
-            return prev + 30;
-          });
+        return next;
+      });
+
+      // 배경 이동
+      setBackgroundOffset((prev) => Math.max(prev - 100, MIN_OFFSET));
+
+      const nextCount = pressCount + 1;
+      setPressCount(nextCount);
+
+      // 파티클 생성
+      if (nextCount >= PARTICLE_STAGE_1_START) {
+        if (nextCount < PARTICLE_STAGE_2_START) {
+          createParticles(1);
+        } else if (nextCount < PARTICLE_STAGE_3_START) {
+          createParticles(2);
         } else {
-          setNeckOffset((prev) => {
-            if (prev - 30 <= MIN_NECK_OFFSET) {
-              setIsGreenieUp(true);
-              return MIN_NECK_OFFSET;
-            }
-            return prev - 30;
-          });
+          createParticles(3);
         }
-        setBackgroundOffset((prev) => Math.max(prev - 100, MIN_OFFSET));
-        setPressCount((prev) => {
-          const nextCount = prev + 1;
-
-          if (nextCount >= SPACEBAR_GOAL_COUNT) {
-            if (submittedRef.current) return;
-            submittedRef.current = true;
-            setIsTimeOver(false);
-            setIsGameOver(true);
-            startTimeRef.current = null;
-            setIsSubmitted(true);
-
-            const clearTime = 15 - remainingTime;
-            setFinalClearTime(clearTime);
-            const newPlayer = {
-              name: playerId,
-              score: clearTime,
-              id: playerId,
-            };
-            
-            submitScore(playerId,Number(clearTime.toFixed(2)));
-            
-
-            setRanking((prevRanking) =>
-              [...prevRanking, newPlayer]
-                .sort((a, b) => a.score - b.score)
-                .slice(0, 5)
-            ); // 필요 시 삭제
-
-            setIsSubmitted(true);
-            setPlayerName("");
-
-            if (audioRef.current) {
-              audioRef.current.play();
-            }
-          }
-
-
-
-          if (nextCount >= PARTICLE_STAGE_1_START) {
-            if (nextCount < PARTICLE_STAGE_2_START) {
-              createParticles(1);
-            } else if (nextCount < PARTICLE_STAGE_3_START) {
-              createParticles(2);
-            } else {
-              createParticles(3);
-            }
-          }
-
-          return nextCount;
-        });
-
-        setIsKeyPressed(true);
       }
 
-
-      
-
-
-      if ((e.key === "r" && !isStartModalOpen || e.key === "R" && !isStartModalOpen)) {
-        setIsGameOver(false);
+      // 클리어 조건
+      if (nextCount >= SPACEBAR_GOAL_COUNT && !submittedRef.current) {
+        submittedRef.current = true;
         setIsTimeOver(false);
-        setPressCount(0);
-        setIsSubmitted(false);
-        setBackgroundOffset(MAX_OFFSET);
-        setRemainingTime(15.0);
-        setNeckOffset(-400);
+        setIsGameOver(true);
+        setIsSubmitted(true);
         startTimeRef.current = null;
-        setIsStartModalOpen(true);
-        submittedRef.current = false;
-        setIsSubmitted(false);
-        setPlayerName("");
-      }
-    };
 
-    const handleKeyUp = (e) => {
-      if (e.code === "Space") {
-        setIsKeyPressed(false);
-      }
-    };
+        const clearTime = 15 - remainingTime;
+        setFinalClearTime(clearTime);
+        handleSubmitResult(clearTime);
+        
 
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-    };
-  }, [isKeyPressed, isGameOver, isStartModalOpen]);
+        if (audioRef.current) {
+          audioRef.current.play();
+        }
+      }
+
+      setIsKeyPressed(true);
+    }
+
+    // R 재시작
+    if ((e.key === "r" || e.key === "R") && !isStartModalOpen) {
+      startTimeRef.current = null;
+      submittedRef.current = false;
+      setIsGameOver(false);
+      setIsTimeOver(false);
+      setPressCount(0);
+      setIsSubmitted(false);
+      setBackgroundOffset(MAX_OFFSET);
+      setRemainingTime(15.0);
+      setNeckOffset(-400);
+      setIsStartModalOpen(true);
+      setPlayerName("");
+    }
+  };
+
+  const handleKeyUp = (e) => {
+    if (e.code === "Space") {
+      setIsKeyPressed(false);
+    }
+  };
+
+  window.addEventListener("keydown", handleKeyDown);
+  window.addEventListener("keyup", handleKeyUp);
+  return () => {
+    window.removeEventListener("keydown", handleKeyDown);
+    window.removeEventListener("keyup", handleKeyUp);
+  };
+}, [isKeyPressed, isGameOver, isStartModalOpen]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -748,7 +777,7 @@ const Giraffe = () => {
                     onChange={handleNameChange}
                     autoComplete="off"
                     required
-                    style={{ width: "300px", height: "50px", fontSize: "40px"}}
+                    style={{ width: "300px", height: "50px", fontSize: "40px", fontFamily: 'YOnepickTTF-Bold',}}
                   />
                   <button
                     type="submit"
@@ -949,7 +978,7 @@ const Giraffe = () => {
                   else if (i === 1) color = "silver";
                   else if (i === 2) color = "#cd7f32"; // 동색
                   return (
-                    <tr key={i} style={{ color }}>
+                    <tr key={r.rank} style={{ color }}>
                       <td
                         style={{
                           padding: "8px",
@@ -958,7 +987,7 @@ const Giraffe = () => {
                           fontWeight: "bold" ,
                         }}
                       >
-                        {i + 1}
+                        {r.rank}
                       </td>
                       <td
                         style={{
@@ -968,7 +997,7 @@ const Giraffe = () => {
                           fontWeight: "bold" ,
                         }}
                       >
-                        {r.name}
+                        {r.nickname}
                       </td>
                       <td
                         style={{
