@@ -76,10 +76,9 @@ const Giraffe = () => {
     userId: userId,
     score: formattedScore,
   };
-
   try {
     const res = await fetch(
-      "https://0by7j8suf2.execute-api.ap-northeast-2.amazonaws.com/proxy/api/result",
+      `${process.env.REACT_APP_API_USER_URL}`,
       {
         method: "POST",
         headers: {
@@ -102,7 +101,7 @@ const fetchRanking = async () => {
 
   try {
     const res = await fetch(
-      'https://0by7j8suf2.execute-api.ap-northeast-2.amazonaws.com/proxy/api/ranking/greenie-neck',
+      process.env.REACT_APP_API_LEADERBOARD_URL,
       {
         method: "GET",
         headers: {
@@ -127,7 +126,7 @@ const fetchRanking = async () => {
 };
 
 const handleSubmitResult = async(score) =>{
-  if (submittedRef.current) return;
+  console.log("🔥 handleSubmitResult 호출됨");
 
   startTimeRef.current = null; 
 
@@ -952,12 +951,12 @@ useEffect(() => {
                   </th>
                   <th
                     style={{
-                      width: "150px",
+                      width: "350px",
                       padding: "8px",
                       border: "1px solid white"
                     }}
                   >
-                    이름
+                    닉네임
                   </th>
                   <th
                     style={{
