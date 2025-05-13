@@ -164,7 +164,7 @@ useEffect(() => {
   //이름 인풋 이벤트 핸들러
   const handleNameChange = (e) => {
     const newName = e.target.value;
-    if (/\s/.test(newName)) return;
+    if (/\s/.test(newName) || /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(newName)) return;
     setPlayerName(newName);
     setNameError(validateId(newName));
   };
