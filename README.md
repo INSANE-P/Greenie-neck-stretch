@@ -28,8 +28,6 @@
 
 ## 🖼️ 게임 화면 예시
 
-> `public/screenshot.png` 파일이 있는 경우 아래 이미지가 깃허브에서도 보입니다.
-
 ![게임 플레이 화면](./screenshot.png)
 
 ---
