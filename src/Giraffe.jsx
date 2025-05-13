@@ -326,7 +326,6 @@ useEffect(() => {
 
       // 클리어 조건
       if (nextCount >= SPACEBAR_GOAL_COUNT && !submittedRef.current) {
-        submittedRef.current = true;
         setIsTimeOver(false);
         setIsGameOver(true);
         setIsSubmitted(true);
