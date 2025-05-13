@@ -36,24 +36,28 @@
 
 이 프로젝트는 **Node.js와 npm이 설치된 환경**에서 실행됩니다.
 
-### 1. 저장소 클론
 
+### 1. 저장소 클론
 ```sh
 # 터미널에서 실행
 git clone https://github.com/INSANE-P/Greenie-neck-stretch.git
 cd Greenie-neck-stretch
+```
 
 
 ### 2. 패키지 설치
 ```sh
 # 터미널에서 실행
 npm install
+```
 
 
 ### 3. 환경 변수 설정
 ```env
 # .env 내부
 REACT_APP_API_TOKEN=여기에_실제_토큰_값
+```
+
 
 ### 4. 개발 서버 실행
 ```sh
