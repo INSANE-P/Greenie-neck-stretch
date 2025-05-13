@@ -209,7 +209,10 @@ useEffect(() => {
       };
     });
 
-    setParticles((prev) => [...prev, ...newParticles]);
+    setParticles((prev) => {
+      const updated = [...prev, ...newParticles];
+  return updated.slice(-50);
+  });
   };
 
   useEffect(() => {
