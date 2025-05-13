@@ -284,7 +284,7 @@ useEffect(() => {
     const isTyping =
       tag === "input" || tag === "textarea" || e.target.isContentEditable;
 
-    if ((e.key === "r" || e.key === "R") && isTyping) return;
+    if ((e.key === "r" || e.key === "R" ||e.key==="ㄱ") && isTyping) return;
 
     if (
       e.code === "Space" &&
@@ -348,7 +348,7 @@ useEffect(() => {
     }
 
     // R 재시작
-    if ((e.key === "r" || e.key === "R") && !isStartModalOpen) {
+    if ((e.code === "KeyR") && !isStartModalOpen) {
       startTimeRef.current = null;
       submittedRef.current = false;
       setIsGameOver(false);
