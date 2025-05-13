@@ -70,7 +70,7 @@ const Giraffe = () => {
   const submitScore = async (userId, score) => {
 
   const token = process.env.REACT_APP_API_TOKEN;
-  const formattedScore = Number(score.toFixed(2));
+  const formattedScore = Number(score.toFixed(5));
   const payload = {
     gameName: "greeny-neck",
     userId: userId,
