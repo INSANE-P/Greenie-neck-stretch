@@ -63,3 +63,11 @@ REACT_APP_API_TOKEN=여기에_실제_토큰_값
 ```sh
 # 터미널에서 실행
 npm start
+```
+
+### !!! main(비동기 로직)의 파일 작동 안할 경우 !!!
+```sh
+# 터미널에서 실행
+git checkout -b backup origin/backup
+```
+를 통해 backup 파일 실행(동기 로직)
