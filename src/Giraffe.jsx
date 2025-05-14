@@ -21,8 +21,6 @@ import fireworks from "./balloon.png";
 import trophy from "./trophy1.png";
 import "./App.css";
 
-
-
 const Giraffe = () => {
   const audioRef = useRef(null);
   const startTimeRef = useRef(null);
@@ -38,7 +36,7 @@ const Giraffe = () => {
   const PARTICLE_STAGE_2_START = 61;
   const PARTICLE_STAGE_3_START = 71;
   const towerWidthRatio = 35;
-  const towerHeight = 11000;
+  const towerHeight = 12000;
   const giraffeWidth = 300;
   const bgTransitionSec = 0.1;
   const towerTransitionSec = 0.1;
@@ -46,7 +44,6 @@ const Giraffe = () => {
 
   const [backgroundOffset, setBackgroundOffset] = useState(MAX_OFFSET);
   const [backgroundHeight, setBackgroundHeight] = useState(MAX_OFFSET);
-
 
   const [isKeyPressed, setIsKeyPressed] = useState(false);
   const [pressCount, setPressCount] = useState(0);
@@ -65,95 +62,86 @@ const Giraffe = () => {
   const [isStartModalOpen, setIsStartModalOpen] = useState(true);
   const [finalClearTime, setFinalClearTime] = useState(null);
 
-  const  submittedRef = useRef(false);
-  
-  const submitScore = async (userId, score) => {
+  const submittedRef = useRef(false);
 
-  const token = process.env.REACT_APP_API_TOKEN;
-  const formattedScore = Number(score.toFixed(5));
-  const payload = {
-    gameName: "greeny-neck",
-    userId: userId,
-    score: formattedScore,
-  };
-  try {
-    const res = await fetch(
-      `${process.env.REACT_APP_API_USER_URL}`,
-      {
+  const submitScore = async (userId, score) => {
+    const token = process.env.REACT_APP_API_TOKEN;
+    const formattedScore = Number(score.toFixed(5));
+    const payload = {
+      gameName: "greeny-neck",
+      userId: userId,
+      score: formattedScore,
+    };
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_USER_URL}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
-      }
-    );
+      });
 
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    console.log("✅ 점수 전송 성공");
-  } catch (e) {
-    console.error("❌ 점수 전송 오류:", e);
-  }
-};
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      console.log("✅ 점수 전송 성공");
+    } catch (e) {
+      console.error("❌ 점수 전송 오류:", e);
+    }
+  };
 
-const fetchRanking = async () => {
-  const token = process.env.REACT_APP_API_TOKEN;
+  const fetchRanking = async () => {
+    const token = process.env.REACT_APP_API_TOKEN;
 
-  try {
-    const res = await fetch(
-      process.env.REACT_APP_API_LEADERBOARD_URL,
-      {
+    try {
+      const res = await fetch(process.env.REACT_APP_API_LEADERBOARD_URL, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
-      }
-    );
+      });
 
-    const data = await res.json();
-    if (!data || !Array.isArray(data.rankings)) {
-      console.error("❌ 랭킹 데이터 형식 오류:", data);
+      const data = await res.json();
+      if (!data || !Array.isArray(data.rankings)) {
+        console.error("❌ 랭킹 데이터 형식 오류:", data);
+        return [];
+      }
+
+      return data.rankings;
+    } catch (err) {
+      console.error("랭킹 불러오기 실패:", err);
       return [];
     }
+  };
 
-    return data.rankings;
+  const handleSubmitResult = async (score) => {
+    console.log("🔥 handleSubmitResult 호출됨");
 
-  } catch (err) {
-    console.error('랭킹 불러오기 실패:', err);
-    return [];
-  }
-};
+    startTimeRef.current = null;
 
-const handleSubmitResult = async(score) =>{
-  console.log("🔥 handleSubmitResult 호출됨");
+    setFinalClearTime(score);
 
-  startTimeRef.current = null; 
-
-  setFinalClearTime(score);
-
-  await submitScore(playerId, score);
-  const newRanking = await fetchRanking();
-  const top5 = newRanking.slice(0,5);
-  
-  submittedRef.current = true;
-  setRanking(top5);
-}
-
-useEffect(() => {
-  const updateRanking= async() => {
+    await submitScore(playerId, score);
     const newRanking = await fetchRanking();
-    const top5 = newRanking.slice(0,5);
-    setRanking(top5);
-  }
-  updateRanking();
-},[])
-useEffect(() => {
-  if (isGameOver && isTimeOver && !submittedRef.current) {
-    handleSubmitResult(15.00); 
-  }
-}, [isGameOver, isTimeOver]);
+    const top5 = newRanking.slice(0, 5);
 
+    submittedRef.current = true;
+    setRanking(top5);
+  };
+
+  useEffect(() => {
+    const updateRanking = async () => {
+      const newRanking = await fetchRanking();
+      const top5 = newRanking.slice(0, 5);
+      setRanking(top5);
+    };
+    updateRanking();
+  }, []);
+  useEffect(() => {
+    if (isGameOver && isTimeOver && !submittedRef.current) {
+      handleSubmitResult(15.0);
+    }
+  }, [isGameOver, isTimeOver]);
 
   useEffect(() => {
     if (isStartModalOpen) {
@@ -220,8 +208,8 @@ useEffect(() => {
 
     setParticles((prev) => {
       const updated = [...prev, ...newParticles];
-  return updated.slice(-50);
-  });
+      return updated.slice(-50);
+    });
   };
 
   useEffect(() => {
@@ -287,104 +275,104 @@ useEffect(() => {
     }
   }, [isGameOver, isTimeOver]);
 
-useEffect(() => {
-  const handleKeyDown = async (e) => {
-    const tag = e.target.tagName.toLowerCase();
-    const isTyping =
-      tag === "input" || tag === "textarea" || e.target.isContentEditable;
+  useEffect(() => {
+    const handleKeyDown = async (e) => {
+      const tag = e.target.tagName.toLowerCase();
+      const isTyping =
+        tag === "input" || tag === "textarea" || e.target.isContentEditable;
 
-    if ((e.key === "r" || e.key === "R") && isTyping) return;
+      if ((e.key === "r" || e.key === "R" || e.key === "ㄱ") && isTyping)
+        return;
 
-    if (
-      e.code === "Space" &&
-      !isKeyPressed &&
-      !isGameOver &&
-      !isStartModalOpen
-    ) {
-      if (startTimeRef.current === null) {
-        startTimeRef.current = performance.now();
-        setIsStartModalOpen(false);
+      if (
+        e.code === "Space" &&
+        !isKeyPressed &&
+        !isGameOver &&
+        !isStartModalOpen
+      ) {
+        if (startTimeRef.current === null) {
+          startTimeRef.current = performance.now();
+          setIsStartModalOpen(false);
+        }
+
+        // 기린 목 처리
+        setNeckOffset((prev) => {
+          const next = isGreenieUp ? prev + 30 : prev - 30;
+          if (next >= MAX_NECK_OFFSET) {
+            setIsGreenieUp(false);
+            return MAX_NECK_OFFSET;
+          } else if (next <= MIN_NECK_OFFSET) {
+            setIsGreenieUp(true);
+            return MIN_NECK_OFFSET;
+          }
+          return next;
+        });
+
+        // 배경 이동
+        setBackgroundOffset((prev) => Math.max(prev - 100, MIN_OFFSET));
+
+        const nextCount = pressCount + 1;
+        setPressCount(nextCount);
+
+        // 파티클 생성
+        if (nextCount >= PARTICLE_STAGE_1_START) {
+          if (nextCount < PARTICLE_STAGE_2_START) {
+            createParticles(1);
+          } else if (nextCount < PARTICLE_STAGE_3_START) {
+            createParticles(2);
+          } else {
+            createParticles(3);
+          }
+        }
+
+        // 클리어 조건
+        if (nextCount >= SPACEBAR_GOAL_COUNT && !submittedRef.current) {
+          setIsTimeOver(false);
+          setIsGameOver(true);
+          setIsSubmitted(true);
+          startTimeRef.current = null;
+
+          const clearTime = 15 - remainingTime;
+          setFinalClearTime(clearTime);
+          handleSubmitResult(clearTime);
+
+          if (audioRef.current) {
+            audioRef.current.play();
+          }
+        }
+
+        setIsKeyPressed(true);
       }
 
-      // 기린 목 처리
-      setNeckOffset((prev) => {
-        const next = isGreenieUp ? prev + 30 : prev - 30;
-        if (next >= MAX_NECK_OFFSET) {
-          setIsGreenieUp(false);
-          return MAX_NECK_OFFSET;
-        } else if (next <= MIN_NECK_OFFSET) {
-          setIsGreenieUp(true);
-          return MIN_NECK_OFFSET;
-        }
-        return next;
-      });
-
-      // 배경 이동
-      setBackgroundOffset((prev) => Math.max(prev - 100, MIN_OFFSET));
-
-      const nextCount = pressCount + 1;
-      setPressCount(nextCount);
-
-      // 파티클 생성
-      if (nextCount >= PARTICLE_STAGE_1_START) {
-        if (nextCount < PARTICLE_STAGE_2_START) {
-          createParticles(1);
-        } else if (nextCount < PARTICLE_STAGE_3_START) {
-          createParticles(2);
-        } else {
-          createParticles(3);
-        }
-      }
-
-      // 클리어 조건
-      if (nextCount >= SPACEBAR_GOAL_COUNT && !submittedRef.current) {
-        setIsTimeOver(false);
-        setIsGameOver(true);
-        setIsSubmitted(true);
+      // R 재시작
+      if (e.code === "KeyR" && !isStartModalOpen) {
         startTimeRef.current = null;
-
-        const clearTime = 15 - remainingTime;
-        setFinalClearTime(clearTime);
-        handleSubmitResult(clearTime);
-        
-
-        if (audioRef.current) {
-          audioRef.current.play();
-        }
+        submittedRef.current = false;
+        setIsGameOver(false);
+        setIsTimeOver(false);
+        setPressCount(0);
+        setIsSubmitted(false);
+        setBackgroundOffset(MAX_OFFSET);
+        setRemainingTime(15.0);
+        setNeckOffset(-400);
+        setIsStartModalOpen(true);
+        setPlayerName("");
       }
+    };
 
-      setIsKeyPressed(true);
-    }
+    const handleKeyUp = (e) => {
+      if (e.code === "Space") {
+        setIsKeyPressed(false);
+      }
+    };
 
-    // R 재시작
-    if ((e.key === "r" || e.key === "R") && !isStartModalOpen) {
-      startTimeRef.current = null;
-      submittedRef.current = false;
-      setIsGameOver(false);
-      setIsTimeOver(false);
-      setPressCount(0);
-      setIsSubmitted(false);
-      setBackgroundOffset(MAX_OFFSET);
-      setRemainingTime(15.0);
-      setNeckOffset(-400);
-      setIsStartModalOpen(true);
-      setPlayerName("");
-    }
-  };
-
-  const handleKeyUp = (e) => {
-    if (e.code === "Space") {
-      setIsKeyPressed(false);
-    }
-  };
-
-  window.addEventListener("keydown", handleKeyDown);
-  window.addEventListener("keyup", handleKeyUp);
-  return () => {
-    window.removeEventListener("keydown", handleKeyDown);
-    window.removeEventListener("keyup", handleKeyUp);
-  };
-}, [isKeyPressed, isGameOver, isStartModalOpen]);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [isKeyPressed, isGameOver, isStartModalOpen]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -418,7 +406,7 @@ useEffect(() => {
           position: "absolute",
           top: `-${backgroundOffset}px`,
           width: "100%",
-          height: `${backgroundHeight+window.innerHeight}px`,
+          height: `${backgroundHeight + window.innerHeight}px`,
           background:
             "linear-gradient(to bottom, #000000, #1a1a80, #3399ff, #66ccff, #99cc66)",
           transition: `top ${bgTransitionSec}s ease-out`,
@@ -435,7 +423,7 @@ useEffect(() => {
           color: remainingTime <= 5 ? "red" : "white",
           fontSize: remainingTime <= 5 ? "60px" : "45px",
           zIndex: 30,
-          fontFamily: 'LOTTERIACHAB',
+          fontFamily: "LOTTERIACHAB",
         }}
       >
         {remainingTime.toFixed(2)}
@@ -443,7 +431,6 @@ useEffect(() => {
 
       {/* 오른쪽 진행 게이지 + 종 아이콘 */}
       <div
-      
         style={{
           position: "fixed",
           right: "40px",
@@ -531,30 +518,37 @@ useEffect(() => {
         }}
       />
       {/*바뀌는 구름 이미지 */}
-      <div style={{
-        position: "fixed",
-        top:`${5100 - backgroundOffset}px`, 
-        left: "50%",
-        transform: "translateX(-50%)",
-        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
-        zIndex: 25,}}
+      <div
+        style={{
+          position: "fixed",
+          top: `${5100 - backgroundOffset}px`,
+          left: "50%",
+          transform: "translateX(-50%)",
+          transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+          zIndex: 25,
+        }}
       >
-        <img src={changeCloud} alt="cloud" style={{
+        <img
+          src={changeCloud}
+          alt="cloud"
+          style={{
             width: "1000px",
             height: "auto",
-          }}/>
+          }}
+        />
       </div>
       <div
-      style={{
-        position: "fixed",
-        top:`-${100+backgroundOffset}px`, 
-        left: "50%",
-        transform: "translateX(-50%)",
-        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
-        zIndex: 27,
-        }}>
-          <img src={bell} alt="bell" style={{width:"700px", height:"auto"}}/>
-        </div>
+        style={{
+          position: "fixed",
+          top: `-${100 + backgroundOffset}px`,
+          left: "50%",
+          transform: "translateX(-50%)",
+          transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+          zIndex: 27,
+        }}
+      >
+        <img src={bell} alt="bell" style={{ width: "700px", height: "auto" }} />
+      </div>
       <div
         style={{
           position: "fixed",
@@ -566,138 +560,197 @@ useEffect(() => {
         }}
       >
         <img
-          src={pressCount > 50
-              ? (giraffeFrame === 0 ? giraffeImage3 : giraffeImage4)
-              : (giraffeFrame === 0 ? giraffeImage1 : giraffeImage2)
-            }
+          src={
+            pressCount > 50
+              ? giraffeFrame === 0
+                ? giraffeImage3
+                : giraffeImage4
+              : giraffeFrame === 0
+              ? giraffeImage1
+              : giraffeImage2
+          }
           alt="Giraffe"
           style={{
             width: `${giraffeWidth}px`,
             height: "auto",
           }}
         />
-      {/*배경 오브젝트 */}
-      {/*행성 1*/}
+        {/*배경 오브젝트 */}
+        {/*행성 1*/}
       </div>
-      <div style={{
-        position: "fixed",
-        top:`${-backgroundOffset}px`, 
-        left: "20%",
-        transform: "translateX(-50%)",
-        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
-        zIndex: 7,}}
+      <div
+        style={{
+          position: "fixed",
+          top: `${-backgroundOffset}px`,
+          left: "20%",
+          transform: "translateX(-50%)",
+          transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+          zIndex: 7,
+        }}
       >
-        <img src={planet1} alt="planet" style={{
+        <img
+          src={planet1}
+          alt="planet"
+          style={{
             width: "400px",
             height: "auto",
-          }}/>
+          }}
+        />
       </div>
       {/*로켓*/}
-      <div style={{
-        position: "fixed",
-        top:`${1000 - backgroundOffset}px`, 
-        right: "0%",
-        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
-        zIndex: 7,}}
+      <div
+        style={{
+          position: "fixed",
+          top: `${1000 - backgroundOffset}px`,
+          right: "0%",
+          transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+          zIndex: 7,
+        }}
       >
-        <img src={rocket} alt="rocket" style={{
+        <img
+          src={rocket}
+          alt="rocket"
+          style={{
             width: "400px",
             height: "auto",
-          }}/>
+          }}
+        />
       </div>
-      <div style={{
-        position: "fixed",
-        top:`${2000 - backgroundOffset}px`, 
-        left: "20%",
-        transform: "translateX(-50%)",
-        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
-        zIndex: 7,}}
+      <div
+        style={{
+          position: "fixed",
+          top: `${2000 - backgroundOffset}px`,
+          left: "20%",
+          transform: "translateX(-50%)",
+          transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+          zIndex: 7,
+        }}
       >
-        <img src={planet2} alt="planet" style={{
+        <img
+          src={planet2}
+          alt="planet"
+          style={{
             width: "400px",
             height: "auto",
-          }}/>
+          }}
+        />
       </div>
       {/*행성 3*/}
-      <div style={{
-        position: "fixed",
-        top:`${3000 - backgroundOffset}px`, 
-        right: "0%",
-        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
-        zIndex: 7,}}
+      <div
+        style={{
+          position: "fixed",
+          top: `${3000 - backgroundOffset}px`,
+          right: "0%",
+          transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+          zIndex: 7,
+        }}
       >
-        <img src={planet3} alt="planet2" style={{
+        <img
+          src={planet3}
+          alt="planet2"
+          style={{
             width: "400px",
             height: "auto",
-          }}/>
+          }}
+        />
       </div>
       {/*행성 4*/}
-      <div style={{
-        position: "fixed",
-        top:`${4000 - backgroundOffset}px`, 
-        left: "20%",
-        transform: "translateX(-50%)",
-        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
-        zIndex: 7,}}
+      <div
+        style={{
+          position: "fixed",
+          top: `${4000 - backgroundOffset}px`,
+          left: "20%",
+          transform: "translateX(-50%)",
+          transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+          zIndex: 7,
+        }}
       >
-        <img src={moon} alt="planet2" style={{
+        <img
+          src={moon}
+          alt="planet2"
+          style={{
             width: "400px",
             height: "auto",
-          }}/>
+          }}
+        />
       </div>
 
       {/*구름 1*/}
-      <div style={{
-        position: "fixed",
-        top:`${6000 - backgroundOffset}px`, 
-        left: "20%",
-        transform: "translateX(-50%)",
-        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
-        zIndex: 7,}}
+      <div
+        style={{
+          position: "fixed",
+          top: `${6000 - backgroundOffset}px`,
+          left: "20%",
+          transform: "translateX(-50%)",
+          transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+          zIndex: 7,
+        }}
       >
-        <img src={cloud4} alt="rocket" style={{
+        <img
+          src={cloud4}
+          alt="rocket"
+          style={{
             width: "450px",
             height: "auto",
-          }}/>
+          }}
+        />
       </div>
-      <div style={{
-        position: "fixed",
-        top:`${7000 - backgroundOffset}px`, 
-        right: "0%",
-        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
-        zIndex: 7,}}
+      <div
+        style={{
+          position: "fixed",
+          top: `${7000 - backgroundOffset}px`,
+          right: "0%",
+          transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+          zIndex: 7,
+        }}
       >
-        <img src={cloud3} alt="planet" style={{
+        <img
+          src={cloud3}
+          alt="planet"
+          style={{
             width: "450px",
             height: "auto",
-          }}/>
+          }}
+        />
       </div>
       {/*구름 2*/}
-      <div style={{
-        position: "fixed",
-        top:`${8000 - backgroundOffset}px`, 
-        left: "20%",
-        transform: "translateX(-50%)",
-        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
-        zIndex: 7,}}
+      <div
+        style={{
+          position: "fixed",
+          top: `${8000 - backgroundOffset}px`,
+          left: "20%",
+          transform: "translateX(-50%)",
+          transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+          zIndex: 7,
+        }}
       >
-        <img src={cloud2} alt="planet2" style={{
+        <img
+          src={cloud2}
+          alt="planet2"
+          style={{
             width: "450px",
             height: "auto",
-          }}/>
+          }}
+        />
       </div>
       {/*구름 3*/}
-      <div style={{
-        position: "fixed",
-        top:`${9000 - backgroundOffset}px`, 
-        right: "0%",
-        transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
-        zIndex: 7,}}
+      <div
+        style={{
+          position: "fixed",
+          top: `${9000 - backgroundOffset}px`,
+          right: "0%",
+          transition: `top 0.8s cubic-bezier(0.25, 1, 0.5, 1)`,
+          zIndex: 7,
+        }}
       >
-        <img src={cloud1} alt="planet2" style={{
+        <img
+          src={cloud1}
+          alt="planet2"
+          style={{
             width: "450px",
             height: "auto",
-          }}/>
+          }}
+        />
       </div>
 
       {isStartModalOpen && (
@@ -745,7 +798,7 @@ useEffect(() => {
                 fontSize: "50px",
                 fontWeight: "bold",
                 color: "lightgreen",
-                fontFamily: 'YOnepickTTF-Bold',
+                fontFamily: "YOnepickTTF-Bold",
               }}
             >
               그린이 목늘리기!
@@ -753,7 +806,12 @@ useEffect(() => {
 
             {/* 본문 내용 */}
             <div
-              style={{ marginTop: "80px", fontSize: "24px", lineHeight: "1.6", fontFamily: 'YOnepickTTF-Bold', }}
+              style={{
+                marginTop: "80px",
+                fontSize: "24px",
+                lineHeight: "1.6",
+                fontFamily: "YOnepickTTF-Bold",
+              }}
             >
               <br />
               세종대학교 시계탑 안에
@@ -773,7 +831,6 @@ useEffect(() => {
               <form onSubmit={handlePlayerSubmit}>
                 <div
                   style={{
-                  
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -787,7 +844,12 @@ useEffect(() => {
                     onChange={handleNameChange}
                     autoComplete="off"
                     required
-                    style={{ width: "300px", height: "50px", fontSize: "40px", fontFamily: 'YOnepickTTF-Bold',}}
+                    style={{
+                      width: "300px",
+                      height: "50px",
+                      fontSize: "40px",
+                      fontFamily: "YOnepickTTF-Bold",
+                    }}
                   />
                   <button
                     type="submit"
@@ -842,112 +904,140 @@ useEffect(() => {
           >
             {isTimeOver ? (
               <div
-              style={{
-                display: "flex",
-                alignItems: "center",        
-                justifyContent: "center",
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 <img
                   src={clock}
                   alt="timer"
                   style={{ width: "60px", height: "60px", marginRight: "10px" }}
-                  />
-                <div style={{ fontSize: "60px",fontFamily: 'YOnepickTTF-Bold', }}>시간 종료!</div>
+                />
+                <div
+                  style={{ fontSize: "60px", fontFamily: "YOnepickTTF-Bold" }}
+                >
+                  시간 종료!
+                </div>
               </div>
             ) : (
               <div>
                 <div
-                style={{
-                display: "flex",
-                alignItems: "center",        
-                justifyContent: "center",
-                }}
-                >
-                  <img 
-                  src={fireworks} 
-                  alt="fireworks"
-                  style={{ width: "60px", height: "60px", marginRight: "10px" }}
-                  />
-                  <div style={{ color:"#7CFF8D", fontSize: "60px", fontFamily: 'YOnepickTTF-Bold' }}>성공</div>
-                  <img 
-                  src={fireworks} 
-                  alt="fireworks"
-                  style={{ width: "60px", height: "60px", marginRight: "10px" }}
-                  />
-                </div>
-              <div
-              style={{
-                display: "flex",
-                alignItems: "center",        
-                justifyContent: "center",
-                }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
                 >
                   <img
-                  src={clock}
-                  alt="timer"
-                  style={{ width: "35px", height: "35px", marginRight: "10px" }}
+                    src={fireworks}
+                    alt="fireworks"
+                    style={{
+                      width: "60px",
+                      height: "60px",
+                      marginRight: "10px",
+                    }}
                   />
                   <div
+                    style={{
+                      color: "#7CFF8D",
+                      fontSize: "60px",
+                      fontFamily: "YOnepickTTF-Bold",
+                    }}
+                  >
+                    성공
+                  </div>
+                  <img
+                    src={fireworks}
+                    alt="fireworks"
+                    style={{
+                      width: "60px",
+                      height: "60px",
+                      marginRight: "10px",
+                    }}
+                  />
+                </div>
+                <div
                   style={{
-                    color: "#1e90ff",
-                    fontSize: "35px",
-                    fontFamily: 'YOnepickTTF-Bold',
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
+                >
+                  <img
+                    src={clock}
+                    alt="timer"
+                    style={{
+                      width: "35px",
+                      height: "35px",
+                      marginRight: "10px",
+                    }}
+                  />
+                  <div
+                    style={{
+                      color: "#1e90ff",
+                      fontSize: "35px",
+                      fontFamily: "YOnepickTTF-Bold",
+                    }}
                   >
                     {finalClearTime?.toFixed(2)}초
-                    </div>
-                    <img
-                  src={clock}
-                  alt="timer"
-                  style={{ width: "40px", height: "40px", marginRight: "10px" }}
+                  </div>
+                  <img
+                    src={clock}
+                    alt="timer"
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      marginRight: "10px",
+                    }}
                   />
-                  </div>
-                  </div>
+                </div>
+              </div>
             )}
             <div
-            style={{
+              style={{
                 display: "flex",
-                alignItems: "center",        
+                alignItems: "center",
                 justifyContent: "center",
-                }}
-            >
-              <img 
-              src={trophy} 
-              alt="trophy"
-              style={{ 
-                width: "35px",
-                height: "35px", 
-              }} 
-              />
-              <h2 
-            style={{ 
-              fontSize:"40px",
-              fontWeight: "bold",
-              color: "#FFC107", 
-              fontFamily: 'YOnepickTTF-Bold',
-              margin: "20px", 
               }}
+            >
+              <img
+                src={trophy}
+                alt="trophy"
+                style={{
+                  width: "35px",
+                  height: "35px",
+                }}
+              />
+              <h2
+                style={{
+                  fontSize: "40px",
+                  fontWeight: "bold",
+                  color: "#FFC107",
+                  fontFamily: "YOnepickTTF-Bold",
+                  margin: "20px",
+                }}
               >
                 랭킹
               </h2>
-              <img 
-              src={trophy} 
-              alt="trophy"
-              style={{ 
-                width: "35px",
-                height: "35px", 
-              }} 
+              <img
+                src={trophy}
+                alt="trophy"
+                style={{
+                  width: "35px",
+                  height: "35px",
+                }}
               />
             </div>
-            <table 
+            <table
               style={{
                 color: "white",
                 fontSize: "25px",
                 margin: "0 auto",
                 borderCollapse: "collapse",
                 border: "2px solid white",
-                fontFamily: 'YOnepickTTF-Bold',
+                fontFamily: "YOnepickTTF-Bold",
               }}
             >
               <thead>
@@ -965,7 +1055,7 @@ useEffect(() => {
                     style={{
                       width: "350px",
                       padding: "8px",
-                      border: "1px solid white"
+                      border: "1px solid white",
                     }}
                   >
                     닉네임
@@ -994,7 +1084,7 @@ useEffect(() => {
                           padding: "8px",
                           textAlign: "center",
                           border: "1px solid white",
-                          fontWeight: "bold" ,
+                          fontWeight: "bold",
                         }}
                       >
                         {r.rank}
@@ -1004,7 +1094,7 @@ useEffect(() => {
                           padding: "8px",
                           textAlign: "center",
                           border: "1px solid white",
-                          fontWeight: "bold" ,
+                          fontWeight: "bold",
                         }}
                       >
                         {r.nickname}
@@ -1014,7 +1104,7 @@ useEffect(() => {
                           padding: "8px",
                           textAlign: "center",
                           border: "1px solid white",
-                          fontWeight: "bold" ,
+                          fontWeight: "bold",
                         }}
                       >
                         {r.score.toFixed(2)}초
@@ -1024,7 +1114,13 @@ useEffect(() => {
                 })}
               </tbody>
             </table>
-            <div style={{ color: "white", fontSize: "25px", fontFamily: 'YOnepickTTF-Bold', }}>
+            <div
+              style={{
+                color: "white",
+                fontSize: "25px",
+                fontFamily: "YOnepickTTF-Bold",
+              }}
+            >
               R키를 눌러 재시작
             </div>
           </div>
@@ -1034,6 +1130,5 @@ useEffect(() => {
     </div>
   );
 };
-
 
 export default Giraffe;
