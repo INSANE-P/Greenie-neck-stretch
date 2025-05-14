@@ -360,9 +360,6 @@ useEffect(() => {
   });
 
       isKeyPressedRef.current = true;;
-      setTimeout(() => {
-        isKeyPressedRef.current = false;
-      }, 100);
     }
 
     // R 재시작
