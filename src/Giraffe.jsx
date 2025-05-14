@@ -83,7 +83,7 @@ const Giraffe = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       }
@@ -106,7 +106,7 @@ const fetchRanking = async () => {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`,
         },
       }
     );
@@ -139,6 +139,15 @@ const handleSubmitResult = async(score) =>{
   submittedRef.current = true;
   setRanking(top5);
 }
+
+useEffect(() => {
+  const updateRanking= async() => {
+    const newRanking = await fetchRanking();
+    const top5 = newRanking.slice(0,5);
+    setRanking(top5);
+  }
+  updateRanking();
+},[])
 useEffect(() => {
   if (isGameOver && isTimeOver && !submittedRef.current) {
     handleSubmitResult(15.00); 
