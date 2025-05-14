@@ -44,6 +44,8 @@ const Giraffe = () => {
 
   const [backgroundOffset, setBackgroundOffset] = useState(MAX_OFFSET);
   const [backgroundHeight, setBackgroundHeight] = useState(MAX_OFFSET);
+
+  const [isKeyPressed, setIsKeyPressed] = useState(false);
   const [pressCount, setPressCount] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isTimeOver, setIsTimeOver] = useState(false);
@@ -56,14 +58,11 @@ const Giraffe = () => {
   const [nameError, setNameError] = useState("");
   const [neckOffset, setNeckOffset] = useState(-400);
   const [giraffeFrame, setGiraffeFrame] = useState(0);
+  const [isGreenieUp, setIsGreenieUp] = useState(true);
   const [isStartModalOpen, setIsStartModalOpen] = useState(true);
   const [finalClearTime, setFinalClearTime] = useState(null);
 
-
-  const  submittedRef = useRef(false);
-  const isGreenieUpRef = useRef(true);
-  const isKeyPressedRef = useRef(false);
-  const remainingTimeRef = useRef(15.0);
+  const submittedRef = useRef(false);
 
   const submitScore = async (userId, score) => {
     const token = process.env.REACT_APP_API_TOKEN;
@@ -122,31 +121,13 @@ const Giraffe = () => {
 
     setFinalClearTime(score);
 
+    await submitScore(playerId, score);
+    const newRanking = await fetchRanking();
+    const top5 = newRanking.slice(0, 5);
 
-  startTimeRef.current = null; 
-
-  setFinalClearTime(score);
-
-  await submitScore(playerId, score);
-  const newRanking = await fetchRanking();
-  const top5 = newRanking.slice(0,5);
-  
-  submittedRef.current = true;
-  setRanking(top5);
-}
-
-useEffect(() => {
-  remainingTimeRef.current = remainingTime;
-}, [remainingTime]);
-
-useEffect(() => {
-    const updateRanking = async () => {
-      const newRanking = await fetchRanking();
-      const top5 = newRanking.slice(0, 5);
-      setRanking(top5);
-    };
-    updateRanking();
-  }, []);
+    submittedRef.current = true;
+    setRanking(top5);
+  };
 
   useEffect(() => {
     const updateRanking = async () => {
@@ -302,98 +283,96 @@ useEffect(() => {
 
       if ((e.key === "r" || e.key === "R" || e.key === "ㄱ") && isTyping)
         return;
-    if (
-      e.code === "Space" &&
-      !isKeyPressedRef.current &&
-      !isGameOver &&
-      !isStartModalOpen
-    ) {
-      if (startTimeRef.current === null) {
-        startTimeRef.current = performance.now();
-        setIsStartModalOpen(false);
-      }
 
-      // 기린 목 처리
-      setNeckOffset((prev) => {
-        const next = isGreenieUpRef.current ? prev + 30 : prev - 30;
-        if (next >= MAX_NECK_OFFSET) {
-          isGreenieUpRef.current = false;
-          return MAX_NECK_OFFSET;
-        } else if (next <= MIN_NECK_OFFSET) {
-          isGreenieUpRef.current = true;
-          return MIN_NECK_OFFSET;
+      if (
+        e.code === "Space" &&
+        !isKeyPressed &&
+        !isGameOver &&
+        !isStartModalOpen
+      ) {
+        if (startTimeRef.current === null) {
+          startTimeRef.current = performance.now();
+          setIsStartModalOpen(false);
         }
-        return next;
-      });
 
-      // 배경 이동
-      setBackgroundOffset((prev) => Math.max(prev - 100, MIN_OFFSET));
+        // 기린 목 처리
+        setNeckOffset((prev) => {
+          const next = isGreenieUp ? prev + 30 : prev - 30;
+          if (next >= MAX_NECK_OFFSET) {
+            setIsGreenieUp(false);
+            return MAX_NECK_OFFSET;
+          } else if (next <= MIN_NECK_OFFSET) {
+            setIsGreenieUp(true);
+            return MIN_NECK_OFFSET;
+          }
+          return next;
+        });
 
-      setPressCount((prevCount) => {
-        const nextCount = prevCount + 1;
+        // 배경 이동
+        setBackgroundOffset((prev) => Math.max(prev - 100, MIN_OFFSET));
+
+        const nextCount = pressCount + 1;
+        setPressCount(nextCount);
+
         // 파티클 생성
         if (nextCount >= PARTICLE_STAGE_1_START) {
-        if (nextCount < PARTICLE_STAGE_2_START) {
-        createParticles(1);
-      } 
-      else if (nextCount < PARTICLE_STAGE_3_START) {
-        createParticles(2);
-      } else {
-        createParticles(3);
+          if (nextCount < PARTICLE_STAGE_2_START) {
+            createParticles(1);
+          } else if (nextCount < PARTICLE_STAGE_3_START) {
+            createParticles(2);
+          } else {
+            createParticles(3);
+          }
+        }
+
+        // 클리어 조건
+        if (nextCount >= SPACEBAR_GOAL_COUNT && !submittedRef.current) {
+          setIsTimeOver(false);
+          setIsGameOver(true);
+          setIsSubmitted(true);
+          startTimeRef.current = null;
+
+          const clearTime = 15 - remainingTime;
+          setFinalClearTime(clearTime);
+          handleSubmitResult(clearTime);
+
+          if (audioRef.current) {
+            audioRef.current.play();
+          }
+        }
+
+        setIsKeyPressed(true);
       }
-    }
-    // 클리어 조건
-    if (nextCount >= SPACEBAR_GOAL_COUNT && !submittedRef.current) {
-      setIsTimeOver(false);
-      setIsGameOver(true);
-      setIsSubmitted(true);
-      startTimeRef.current = null;
 
-      const clearTime = 15 - remainingTimeRef.current;
-      setFinalClearTime(clearTime);
-      handleSubmitResult(clearTime);
-      if (audioRef.current) {
-        audioRef.current.play();
+      // R 재시작
+      if (e.code === "KeyR" && !isStartModalOpen) {
+        startTimeRef.current = null;
+        submittedRef.current = false;
+        setIsGameOver(false);
+        setIsTimeOver(false);
+        setPressCount(0);
+        setIsSubmitted(false);
+        setBackgroundOffset(MAX_OFFSET);
+        setRemainingTime(15.0);
+        setNeckOffset(-400);
+        setIsStartModalOpen(true);
+        setPlayerName("");
       }
-    }
-    return nextCount;
-  });
+    };
 
-      isKeyPressedRef.current = true;;
-      setTimeout(() => {
-        isKeyPressedRef.current = false;
-      }, 100);
-    }
+    const handleKeyUp = (e) => {
+      if (e.code === "Space") {
+        setIsKeyPressed(false);
+      }
+    };
 
-    // R 재시작
-    if ((e.key === "r" || e.key === "R") && !isStartModalOpen) {
-      startTimeRef.current = null;
-      submittedRef.current = false;
-      setIsGameOver(false);
-      setIsTimeOver(false);
-      setPressCount(0);
-      setIsSubmitted(false);
-      setBackgroundOffset(MAX_OFFSET);
-      setRemainingTime(15.0);
-      setNeckOffset(-400);
-      setIsStartModalOpen(true);
-      setPlayerName("");
-    }
-  };
-
-  const handleKeyUp = (e) => {
-    if (e.code === "Space") {
-      isKeyPressedRef.current = false;
-    }
-  };
-
-  window.addEventListener("keydown", handleKeyDown);
-  window.addEventListener("keyup", handleKeyUp);
-  return () => {
-    window.removeEventListener("keydown", handleKeyDown);
-    window.removeEventListener("keyup", handleKeyUp);
-  };
-}, [isGameOver, isStartModalOpen]);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [isKeyPressed, isGameOver, isStartModalOpen]);
 
   useEffect(() => {
     const interval = setInterval(() => {
